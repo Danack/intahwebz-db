@@ -1,0 +1,183 @@
+<?php
+
+namespace Intahwebz\DB;
+
+use Psr\Log\LoggerInterface;
+
+
+class ConnectionWrapper implements DBConnection {
+
+    use \Intahwebz\SafeAccess;
+
+    private $forceUTF8Names = false;
+    var $mysqli;
+    
+    private $logger;
+
+    static $MYSQL_PIPE_UNAVAILABLE_COUNT = 0;
+
+    static $prepareTime = 0;
+    
+    function __construct(LoggerInterface $logger, $host, $username, $password, $port, $socket) {
+
+        //Convert any error to exception?
+        //Need to investigate what happens with errors on connection.
+        //At the moment we can retry on certain error types - would need to refactor to catch
+        //That exception specifically, to allow a retry.
+        //mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+        $this->logger = $logger;
+        
+        $finished = false;
+
+        while ($finished == false) {
+
+            try {
+                $this->mysqli = @new \mysqli($host, $username, $password, "", $port, $socket);
+
+                $errorNumber = mysqli_connect_errno();
+
+                if ($errorNumber) {
+                    throw new DBException('Connect databases failed! error Number is ' . $errorNumber . " error string is " . mysqli_connect_error());
+                }
+            } catch (\Exception $e) {
+                throw new DBException("Exception connecting to database " . $e->getMessage(), 0, $e);
+            }
+
+            $errorNumber = \mysqli_connect_errno();
+
+            if ($errorNumber) {
+
+                //if ($db->errno === 1062 /* ER_DUP_ENTRY Duplicate entry - safe for use for detecting duplicates? */)
+
+                if ($errorNumber == 2016 || //# Error: 2016 (CR_NAMEDPIPEWAIT_ERROR) Message: Can't wait for named pipe to host: %s pipe: %s (%lu)
+                    $errorNumber == 2017 || //Errorcode: 2017. Reason is Can't open named pipe to host: .  pipe: /tmp/mysql (2)
+                    $errorNumber == 2003
+                ) {
+                    $sleepDelay = 1;
+
+                    self::$MYSQL_PIPE_UNAVAILABLE_COUNT++;
+                    if (self::$MYSQL_PIPE_UNAVAILABLE_COUNT != 0 && (self::$MYSQL_PIPE_UNAVAILABLE_COUNT % 10) == 0) {
+                        throw new DBException("MySQL not available.");
+                    }
+
+                    sleep($sleepDelay);
+                }
+                else if ($errorNumber == 2002) {
+                    throw new DatabaseMissingException("Database not available.");
+                }
+                else {
+                    //setOnScreenDebug(true);
+                    throw new DBException("Can't connect to MySQL Server [" . MYSQL_SERVER . "]. Errorcode: " . $errorNumber . ". Reason is " . \mysqli_connect_error() . ". As this reason isn't recognised, terminating application.");
+//                    $finished = true; // about to go boom for sure.
+                    //exit;
+                }
+            }
+            else {
+                //no error, connection should be setup.
+                $finished = true;
+            }
+        }
+
+
+
+        if ($this->forceUTF8Names == true) {
+            //If the MySQL server does not use UTF8 by default then strings sent to it are sent it whatever
+            //is the default character set. That is not what you want. e.g. name = 'dån' as it compares the
+            //utf8 column name to the non-UTF8 string.
+            $this->directExecute("SET NAMES 'utf8mb4'");
+        }
+    }
+
+
+    function activateTransaction() {
+        $this->mysqli->autocommit(false);
+
+        return false;
+    }
+
+    function commit() {
+        $this->mysqli->commit();
+        $this->mysqli->autocommit(true);
+    }
+
+    function close($closeCached = false) {
+        if (false) {
+            $this->mysqli->close();
+            //$this->open = false;
+        }
+    }
+
+    function rollback() {
+        $this->mysqli->rollback();
+        $this->mysqli->autocommit(true);
+    }
+
+//    public function finalise() {
+//        if (SERVER_REPORT_SQL_EXECUTE_TIMINGS) {
+//            echo "<br/>Total SQL Preparation time is " . self::$prepareTime . "<br/>";
+//            echo "<br/>Total MYSQL_PIPE_UNAVAILABLE_COUNT is " . self::$MYSQL_PIPE_UNAVAILABLE_COUNT . "<br/>";
+//        }
+//    }
+//
+//    public function    reportTimings() {
+//        echo "<br/>Total SQL Preparation time is " . self::$prepareTime . "<br/>";
+//        echo "<br/>Total MYSQL_PIPE_UNAVAILABLE_COUNT is " . self::$MYSQL_PIPE_UNAVAILABLE_COUNT . "<br/>";
+//    }
+
+    function prepareStatement($queryString, $log = false, $callstackLevel = 0) {
+
+        //$startTime = microtime();
+        $statement = $this->mysqli->prepare($queryString);
+
+        //self::$prepareTime += microtime_diff($startTime);
+
+        if ($statement == false) {
+            $errorString = "Error preparing statement " . $this->mysqli->error . ". Query was [\n" . $queryString . "\n]";
+            //logToScreen($errorString);
+            //logToFileFatal($errorString);
+
+            $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
+
+            throw new DBException($errorString . 'Called from ' . $calledFromString);
+        }
+        else {
+            $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
+            $statementWrapper = new StatementWrapper($statement, $calledFromString, $this->logger);
+
+            $statementWrapper->setQueryString($queryString);
+
+            return $statementWrapper;
+        }
+    }
+
+    function prepareAndExecute($queryString, $log = false) {
+        $statementWrapper = $this->prepareStatement($queryString, $log, 1);
+        $result = $statementWrapper->execute();
+
+        if ($result === false) {
+            throw new DBException("Error preparing statement [" . $this->mysqli->error . "Query was [" . $queryString . "]");
+        }
+
+        return $statementWrapper;
+    }
+
+    function directExecute($queryString) {
+        $result = $this->mysqli->query($queryString);
+
+        if ($result === false) {
+            throw new DBException("Error executing sql query [" . $this->mysqli->error . ". Query was [" . $queryString . "]".$this->mysqli->errno);
+        }
+
+        return $result;
+    }
+
+    function getLastError(){
+        return "".$this->mysqli->errno.":".$this->mysqli->error;
+        //return $this->mysqli->errno;
+    }
+
+    function selectSchema($schema) {
+        return $this->mysqli->select_db($schema);
+    }
+}

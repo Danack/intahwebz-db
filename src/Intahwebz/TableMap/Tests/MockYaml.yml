@@ -1,0 +1,9 @@
+---
+metaData:
+  MockYamlID: 1
+tableData:
+- name: Danack
+  value: 17
+  type: SomeType
+  MockYamlID: 0
+...
