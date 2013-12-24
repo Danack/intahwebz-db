@@ -834,8 +834,7 @@ done:
     }
 
 
-    //Get ancestors of comment #6
-    function getDecendants(TableMap $tableMap, $nodeID) {
+    function getDescendants(TableMap $tableMap, $nodeID, $maxRelativeDepth = null) {
         $this->reset();
 
         $tableName = $tableMap->schema.".".$tableMap->tableName;
@@ -850,10 +849,22 @@ done:
         $this->addSQL("join ".$tableName."_TreePaths t");
         $this->addSQL("on (".$tableMap->tableName.".".$tableMap->getPrimaryColumn()." = t.descendant)");
         $this->addSQL("where t.ancestor = ?");
-        
-        $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
-        $statementWrapper->bindParam('i', $nodeID);
 
+        if ($maxRelativeDepth != null) {
+            $this->addSQL("and t.depth = ?");
+
+            $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+            $statementWrapper->bindParam('ii', $nodeID, $maxRelativeDepth);
+        }
+        else {
+            $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+            $statementWrapper->bindParam('i', $nodeID);
+        }
+
+
+
+
+        
         $blah = [];
         $blahblah = [];
 
@@ -894,16 +905,12 @@ done:
     }
     
     function deleteNode(TableMap $tableMap, $nodeID) {
-
         $this->reset();
         $this->queryString = "";
 
         $tableName = $tableMap->schema.".".$tableMap->tableName;
         $this->addSQL("delete from ".$tableName."_TreePaths  where descendant = ?");
-       
-        // Delete child comment 7
-//        Delete from TreePaths
-//        where descendant = 7;
+
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
         $statementWrapper->bindParam('i', $nodeID);
 
@@ -911,85 +918,22 @@ done:
         $statementWrapper->close();
     }
 
-
-
-
-
-    function deleteDecendants(TableMap $tableMap, $nodeID) {
+    function deleteDescendants(TableMap $tableMap, $nodeID) {
 
         $this->reset();
         $this->queryString = "";
 
         $tableName = $tableMap->schema.".".$tableMap->tableName;
-//        $this->addSQL("delete from ".$tableName."_TreePaths where descendant in
-//( select descendant from ".$tableName."_TreePaths
-//where ancestor = ?);");
-//
         $this->addSQL("delete ".$tableName."_TreePaths from ".$tableName."_TreePaths
     join ".$tableName."_TreePaths a using (descendant)
     where a.ancestor = ?;");
-        
-//        echo $this->queryString;
-
-        
+                
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
         $statementWrapper->bindParam('i', $nodeID);
 
         $statementWrapper->execute();
         $statementWrapper->close();
     }
-    
-    
-
-//        //Get ancestors of comment #6
-//        select c.* from Comments c
-//    join TreePaths t
-//    on (c.comment_id = t.ancestor)
-//    where t.descendant = 6;
-
-
-/*`
-
-//Get ancestors of comment #6
-    select c.* from Comments c
-    join TreePaths t
-    on (c.comment_id = t.ancestor)
-    where t.descendant = 6;
-
-    //Get descendants of comment #4
-    select c.* from Comments c
-    join treePaths t
-    on (c.comment_id = t.descendant)
-    where t.ancestor = 4;
-
-
-
-    //Gives first child of comment 4
-        Select c.* from comments c
-    join treepaths t
-    on (c.comment_id = t.descendant)
-    where t.ancestor = 4
-    and t.depth = 1;
-
-
-    // Delete child comment 7
-    Delete from TreePaths
-    where descendant = 7;
-
-
-    //Delete comments under 4
-
-    delete from treePaths where descendant in
-    ( select descendant from TreePaths
-    where ancestor = 4);
-
-    //Or
-     delete p from TreePaths P
-    join TreePaths a using (descendant)
-    where a.ancestor = 4;
-
-
-*/
 
 }
 

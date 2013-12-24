@@ -91,7 +91,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains(4, $ancestorIDs);
         $this->assertContains(1, $ancestorIDs);
         
-        $stuff = $sqlQuery->getDecendants($table, 2);
+        $stuff = $sqlQuery->getDescendants($table, 2);
         
         $descendentantIDs = array();
         foreach ($stuff as $item) {
@@ -101,11 +101,13 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains(2, $descendentantIDs);
         $this->assertContains(3, $descendentantIDs);
 
-
-        $beforeDelete = $sqlQuery->getDecendants($table, 2);
+        $stuff2 = $sqlQuery->getDescendants($table, 2, 1);
+        $this->assertCount(1, $stuff2);
         
-        $sqlQuery->deleteDecendants($table, 2);
-        $afterDelete = $sqlQuery->getDecendants($table, 2);
+        $beforeDelete = $sqlQuery->getDescendants($table, 2);
+        
+        $sqlQuery->deleteDescendants($table, 2);
+        $afterDelete = $sqlQuery->getDescendants($table, 2);
         
         $this->assertEquals(2, count($beforeDelete) - count($afterDelete), "Failied to remove 2 + 3. ");
     }
