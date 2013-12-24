@@ -18,11 +18,9 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     static function setUpBeforeClass() {
 
         $mocks = [
-            //    'Intahwebz\Session' => 'Intahwebz\Session\MockSession'
         ];
 
         $provider = createProvider($mocks);
-
 
         //This dumps all tables
         $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);

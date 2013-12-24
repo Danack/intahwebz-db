@@ -568,7 +568,6 @@ done:
 
         //Todo - check foreign keys meet mapping requirement.
 
-
         if (is_object($data)) {
             $data = convertObjectToArray($data);
         }
@@ -784,10 +783,11 @@ done:
 
         $queryString = '     Insert into '.$treePathTablename.' (ancestor, descendant, depth)
             select ancestor, ?, (depth + 1) from '.$treePathTablename.'
-            where descendant = ?;';
-
+            where descendant = ? and 
+            ancestor != ?;';
+        
         $statementWrapper = $connection->prepareStatement($queryString);
-        $statementWrapper->bindParam('ii', $insertID, $parentID);
+        $statementWrapper->bindParam('iii', $insertID, $parentID, $insertID);
 
         $statementWrapper->execute();
         $statementWrapper->close();
@@ -819,8 +819,8 @@ done:
         $statementWrapper->statement->bind_result($blah['mockCommentID'], $blah['text'], $blah['parent']);
 
         while ($statementWrapper->statement->fetch()) {
-
             $really = array();
+            $really['mockCommentID'] = $blah['mockCommentID'];
             $really['text'] = $blah['text'];
             $really['parent'] = $blah['parent'];
 
@@ -830,17 +830,166 @@ done:
 
         $statementWrapper->close();
 
-//        var_dump($blahblah);
-
+        return $blahblah;
     }
 
 
+    //Get ancestors of comment #6
+    function getDecendants(TableMap $tableMap, $nodeID) {
+        $this->reset();
+
+        $tableName = $tableMap->schema.".".$tableMap->tableName;
+
+        foreach($tableMap->columns as $columnDefinition){
+            $this->addColumnFromTableAlias($tableMap->tableName, $columnDefinition[0]);
+        }
+
+        $this->addSQL(", t.mockCommentTreePathID, t.depth ");
+        
+        $this->addSQL("from ".$tableName." ".$tableMap->tableName);
+        $this->addSQL("join ".$tableName."_TreePaths t");
+        $this->addSQL("on (".$tableMap->tableName.".".$tableMap->getPrimaryColumn()." = t.descendant)");
+        $this->addSQL("where t.ancestor = ?");
+        
+        $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+        $statementWrapper->bindParam('i', $nodeID);
+
+        $blah = [];
+        $blahblah = [];
+
+        $statementWrapper->execute();
+        $statementWrapper->statement->bind_result(
+            //These are covered by foreach($tableMap->columns as $columnDefinition){
+            $blah['mockCommentID'], 
+            $blah['text'], 
+            $blah['parent'],
+            //These are from the tree map
+            $blah['treeID'],
+            $blah['depth']
+        );
+
+        while ($statementWrapper->statement->fetch()) {
+            $really = array();
+
+//            foreach($tableMap->columns as $columnDefinition){
+//                $this->addColumnFromTableAlias($tableMap->tableName, $columnDefinition[0]);
+//            }
+//            mockCommentTreeID
+//            depth
+
+            $really['mockCommentID'] = $blah['mockCommentID'];
+            $really['text'] = $blah['text'];
+            $really['parent'] = $blah['parent'];
+            
+            $really['treeID'] = $blah['treeID'];
+            $really['depth'] = $blah['depth'];
+
+            //TODO fix this.
+            $blahblah[] = $really;
+        }
+
+        $statementWrapper->close();
+
+        return $blahblah;
+    }
+    
+    function deleteNode(TableMap $tableMap, $nodeID) {
+
+        $this->reset();
+        $this->queryString = "";
+
+        $tableName = $tableMap->schema.".".$tableMap->tableName;
+        $this->addSQL("delete from ".$tableName."_TreePaths  where descendant = ?");
+       
+        // Delete child comment 7
+//        Delete from TreePaths
+//        where descendant = 7;
+        $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+        $statementWrapper->bindParam('i', $nodeID);
+
+        $statementWrapper->execute();
+        $statementWrapper->close();
+    }
+
+
+
+
+
+    function deleteDecendants(TableMap $tableMap, $nodeID) {
+
+        $this->reset();
+        $this->queryString = "";
+
+        $tableName = $tableMap->schema.".".$tableMap->tableName;
+//        $this->addSQL("delete from ".$tableName."_TreePaths where descendant in
+//( select descendant from ".$tableName."_TreePaths
+//where ancestor = ?);");
+//
+        $this->addSQL("delete ".$tableName."_TreePaths from ".$tableName."_TreePaths
+    join ".$tableName."_TreePaths a using (descendant)
+    where a.ancestor = ?;");
+        
+//        echo $this->queryString;
+
+        
+        $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+        $statementWrapper->bindParam('i', $nodeID);
+
+        $statementWrapper->execute();
+        $statementWrapper->close();
+    }
+    
+    
 
 //        //Get ancestors of comment #6
 //        select c.* from Comments c
 //    join TreePaths t
 //    on (c.comment_id = t.ancestor)
 //    where t.descendant = 6;
+
+
+/*`
+
+//Get ancestors of comment #6
+    select c.* from Comments c
+    join TreePaths t
+    on (c.comment_id = t.ancestor)
+    where t.descendant = 6;
+
+    //Get descendants of comment #4
+    select c.* from Comments c
+    join treePaths t
+    on (c.comment_id = t.descendant)
+    where t.ancestor = 4;
+
+
+
+    //Gives first child of comment 4
+        Select c.* from comments c
+    join treepaths t
+    on (c.comment_id = t.descendant)
+    where t.ancestor = 4
+    and t.depth = 1;
+
+
+    // Delete child comment 7
+    Delete from TreePaths
+    where descendant = 7;
+
+
+    //Delete comments under 4
+
+    delete from treePaths where descendant in
+    ( select descendant from TreePaths
+    where ancestor = 4);
+
+    //Or
+     delete p from TreePaths P
+    join TreePaths a using (descendant)
+    where a.ancestor = 4;
+
+
+*/
 
 }
 

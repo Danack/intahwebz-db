@@ -78,26 +78,37 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
             $sqlQuery->insertIntoMappedTable($table, $values);
         }
 
-        $sqlQuery->getAncestors($table, 6);
+        $stuff = $sqlQuery->getAncestors($table, 6);        
+        $this->assertCount(3, $stuff);
+
+        
+        $ancestorIDs = array();
+        foreach ($stuff as $item) {
+            $ancestorIDs[] = $item['mockCommentID'];
+        }
+
+        $this->assertContains(6, $ancestorIDs);
+        $this->assertContains(4, $ancestorIDs);
+        $this->assertContains(1, $ancestorIDs);
+        
+        $stuff = $sqlQuery->getDecendants($table, 2);
+        
+        $descendentantIDs = array();
+        foreach ($stuff as $item) {
+            $descendentantIDs[] = $item['mockCommentID'];
+        }
+        $this->assertCount(2, $stuff);
+        $this->assertContains(2, $descendentantIDs);
+        $this->assertContains(3, $descendentantIDs);
+
+
+        $beforeDelete = $sqlQuery->getDecendants($table, 2);
+        
+        $sqlQuery->deleteDecendants($table, 2);
+        $afterDelete = $sqlQuery->getDecendants($table, 2);
+        
+        $this->assertEquals(2, count($beforeDelete) - count($afterDelete), "Failied to remove 2 + 3. ");
     }
-
-
-//$closureTable = [
-//'ancestor',
-//'descendant',
-//'depth'
-//];
-
-//        1 NULL Fran What’s the cause of this bug?
-//        2 1 Ollie I think it’s a null pointer.
-//        3 2 Fran No, I checked for that.
-//                                   4 1 Kukla We need to check for invalid input.
-//
-//
-//        5 4 Ollie Yes, that’s a bug.
-//        6 4 Fran Yes, please add a check.
-//        7 6 Kukla That fixed it.
-
 
 
     /*
