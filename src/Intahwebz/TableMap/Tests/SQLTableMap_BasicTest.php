@@ -1,20 +1,8 @@
 <?php
 
-//use Intahwebz\DataPath;
-//use Intahwebz\TableMap\YAMLQuery;
 use Intahwebz\TableMap\SQLQueryFactory;
 
-
-function generateRandomString($length = 10) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, strlen($characters) - 1)];
-    }
-    return $randomString;
-}
-
-class SQLTableMapTest extends \PHPUnit_Framework_TestCase {
+class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @var \Auryn\Provider
@@ -87,13 +75,36 @@ class SQLTableMapTest extends \PHPUnit_Framework_TestCase {
     }
 
     function testInsertHash() {
-        //$sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
-        $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
-        //$insertID =
-            $sqlQuery->insertIntoMappedTable($table, ['username' => 'JohnDoe', 'password' => '12345']);
-    }
+        $sqlInsertQuery = $this->sqlQueryFactory->create();
+        $insertTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
+        
+        $username = 'JohnDoe';
+        $password = '12345';
+        
+        $sqlInsertQuery->insertIntoMappedTable($insertTable, ['username' => $username, 'passwordHash' => $password]);
 
+        $sqlVerifyQuery = $this->sqlQueryFactory->create();
+        $verifyTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
+        $queriedTable = $sqlVerifyQuery->tableAlready($verifyTable);
+        $queriedTable->whereColumn('username', $username);
+
+        $mockHashSQLTableDTO = $sqlVerifyQuery->fetchSingle(\Intahwebz\TableMap\Tests\DTO\MockHashSQLTableDTO::class);
+
+        $validated = password_verify($password, $mockHashSQLTableDTO->passwordHash);
+
+        echo "Why no type hinting? for type: ".get_class($mockHashSQLTableDTO);
+        
+        $this->assertTrue($validated, 'Password hash is borked');
+
+        $options = array('cost' => 12);
+        $rehash = password_needs_rehash(
+            $mockHashSQLTableDTO->passwordHash, 
+            PASSWORD_BCRYPT, 
+            $options
+        );
+        
+        $this->assertTrue($rehash, "Required rehash not detected correctly.");
+    }
 
     function testInsert2() {
         $sqlQuery = $this->sqlQueryFactory->create();

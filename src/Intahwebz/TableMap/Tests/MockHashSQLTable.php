@@ -13,16 +13,12 @@ class MockHashSQLTable extends SQLTableMap  {
             'tableName' => 'mockHash',
             'columns' => array(
                 array('username',),
-                array('password', 'type' => 'hash'),
+                array('passwordHash', 'type' => 'hash'),
             )
         );
 
         return $tableDefinition;
     }
-
-//    function getClassName() {
-//        return "MockHash";
-//    }
 }
 
  

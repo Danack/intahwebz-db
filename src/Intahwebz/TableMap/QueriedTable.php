@@ -118,7 +118,7 @@ abstract class QueriedTable {
                 //echo " gives value $hash";
 
                 $options = array('cost' => 11);
-                $hash = password_hash($value, PASSWORD_BCRYPT, $options); 
+                $hash = password_hash($value, PASSWORD_BCRYPT, $options);
                              
 
                 $this->getQuery()->where($functionName.$lb.$columnName .$rb." = ? ", $hash, 's');

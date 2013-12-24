@@ -208,6 +208,20 @@ done:
         $this->sqlFragments = $modifiedSQLFragments;
     }
 
+
+    function fetchSingle($className) {
+        $results = $this->fetch();
+        
+        if (count($results) == 0) {
+            return null;
+        }
+        if (count($results) == 1) {
+            return castToObject($className, $results[0]);    
+        }
+
+        throw new \Exception("multiple rows found, when only one expected.");
+    }
+    
     function fetch($doACount = false, $doADelete = false){
         $this->reset();
         $whereString = ' where ';

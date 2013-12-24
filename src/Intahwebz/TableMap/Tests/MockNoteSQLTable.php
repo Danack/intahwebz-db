@@ -21,15 +21,6 @@ class MockNoteSQLTable extends SQLTableMap  {
 
         return $tableDefinition;
     }
-
-//    function getClassName() {
-//        return "MockNote";
-//    }
-
-//    function __construct(){
-//        //$this->dbConnection = $dbConnection;
-//        $this->initTableDefinition($this->tableDefinition);
-//    }
 }
 
  

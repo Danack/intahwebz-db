@@ -25,9 +25,6 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
         @unlink($filename);
     }
 
-//    static function tearDownAfterClass() {
-//    }
-
     function setUp() {
         $datapath = new YamlPath(realpath(__DIR__));
         $this->testTable = new \Intahwebz\TableMap\Tests\MockYAMLTable($datapath);

@@ -4,18 +4,18 @@ namespace Intahwebz\TableMap\Tests\DTO;
 
 class MockHashSQLTableDTO {
 	public $username;
-	public $password;
+	public $passwordHash;
 
-	public function __construct($username = null, $password = null) {
+	public function __construct($username = null, $passwordHash = null) {
 		$this->username = $username;
-		$this->password = $password;
+		$this->passwordHash = $passwordHash;
 	} 
 	function username($username) { 
 		$this->username = $username;
 	}
 
-	function password($password) { 
-		$this->password = $password;
+	function passwordHash($passwordHash) { 
+		$this->passwordHash = $passwordHash;
 	}
 
 

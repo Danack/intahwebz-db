@@ -20,11 +20,6 @@ class MockFileTable extends SQLTableMap  {
 
         return $tableDefinition;
     }
-
-    function getClassName() {
-        return "MockNote";
-    }
-
 }
 
  

@@ -22,10 +22,6 @@ class UserTable extends SQLTableMap  {
         );
         return $tableDefinition;
     }
-
-//    function getClassName() {
-//        return "User";
-//    }
 }
 
  
