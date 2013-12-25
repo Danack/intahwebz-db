@@ -638,24 +638,15 @@ done:
                             $parameters[] = &$column['default'];
                         }
                         else{
-                            throw new DataNotSetException("Data not set for column [".$column[0]."] and it has no default.");
+                            throw new \BadFunctionCallException("Data not set for column [".$column[0]."] and it has no default.");
                         }
                     }
                     else{
                         if (isset($column['type']) == TRUE &&
                             $column['type'] == 'hash'){
-                            //$passwordHasher = new PasswordHash(8, FALSE);
-
                             $allegedPassword = $data[$column[0]];
-
-//                            $hash = $passwordHasher->HashPassword($allegedPassword);
-
                             $options = array('cost' => 11);
                             $hash = password_hash($allegedPassword, PASSWORD_BCRYPT, $options);
-                            
-                            
-                            
-                            
                             $data[$column[0]] = $hash;
                         }
 

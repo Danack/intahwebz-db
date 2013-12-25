@@ -1,5 +1,6 @@
 <?php
 
+/*
 
 //Create table
 $query = "
@@ -86,3 +87,4 @@ WHERE c.comment_id = 6
 	AND in_between.comment_id IS NULL;
 
 ";
+*/

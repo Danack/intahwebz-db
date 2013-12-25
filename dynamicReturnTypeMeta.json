@@ -1,13 +1,7 @@
 {
     "methodCalls": [
         {
-            "class"   : "\\DynamicReturnTypePluginTestEnvironment\\OverriddenReturnType\\PhockitoTestCase",
-            "method"  : "localMaskMock",
-            "position": 0,
-            "mask"    : "Test_%s_Model"
-        },
-        {
-            "class": "\\BaseReality\\Provider\\Provider",
+            "class": "\\Intahwebz\\TestClass",
             "method": "make",
             "position": 0
         },
@@ -17,8 +11,18 @@
             "position": 0
         },
         {
+            "class": "\\Intahwebz\\TestClassVendors",
+            "method": "make",
+            "position": 0
+        },
+        {
             "class": "\\Intahwebz\\TableMap\\SQLQuery",
             "method": "fetchSingle",
+            "position": 0
+        },
+        {
+            "class": "\\Intahwebz\\Maker",
+            "method": "make",
             "position": 0
         }
     ],

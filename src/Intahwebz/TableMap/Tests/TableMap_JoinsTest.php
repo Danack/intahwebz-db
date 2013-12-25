@@ -80,8 +80,8 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
 
         $sqlReadQuery = $this->sqlQueryFactory->create();
 
-        $sqlReadQuery->tableAlready($userTable)->wherePrimary($userID);
-        $sqlReadQuery->tableAlready($emailTable);
+        $sqlReadQuery->table($userTable)->wherePrimary($userID);
+        $sqlReadQuery->table($emailTable);
 
         $result1 = $sqlReadQuery->fetch();
         $this->assertEquals(1, count($result1), "Failed to retrieve single result.");
@@ -91,8 +91,8 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
 
         $sqlReadQuery = $this->sqlQueryFactory->create();
 
-        $sqlReadQuery->tableAlready($emailTable);
-        $sqlReadQuery->tableAlready($userTable)->wherePrimary($userID);
+        $sqlReadQuery->table($emailTable);
+        $sqlReadQuery->table($userTable)->wherePrimary($userID);
 
         $result2 = $sqlReadQuery->fetch();
         $this->assertEquals(1, count($result2), "Failed to retrieve single result.");

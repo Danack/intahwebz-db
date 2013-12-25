@@ -42,7 +42,7 @@ abstract class AbstractQuery {
      * @param \Intahwebz\TableMap\QueriedTable $joinTableMap
      * @return QueriedSQLTable
      */
-    function    tableAlready(TableMap $tableMap, QueriedTable $joinTableMap = null) {
+    function table(TableMap $tableMap, QueriedTable $joinTableMap = null) {
 
         $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
         $this->sqlFragments[] = $newFragment;
@@ -78,6 +78,7 @@ abstract class AbstractQuery {
 
     function getAliasForTable(TableMap $tableMap) {
         if(in_array($tableMap->tableName, $this->tableNamesUsed) == FALSE){
+            $this->tableNamesUsed[] = $tableMap->tableName;
             return $tableMap->tableName;
         }
 
@@ -86,8 +87,11 @@ abstract class AbstractQuery {
         if($this->aliasCount >= 0 && $this->aliasCount < count($tableAliases)){
             $this->aliasCount++;
         }
+        
+        $alias = $tableAliases[$this->aliasCount];
+        $this->tableNamesUsed[] = $alias;
 
-        return $tableAliases[$this->aliasCount];
+        return $alias;
     }
 
 //    /**
@@ -148,7 +152,7 @@ abstract class AbstractQuery {
     function where($condition, $value = NULL, $type = NULL) {
         if($type === NULL){
             if($value !== NULL){
-                throw new \Exception("Value is set for where fragment. You must also set type - currently not set.");
+                throw new \BadFunctionCallException("Value is set for where fragment. You must also set type - currently not set.");
             }
         }
 
@@ -190,6 +194,19 @@ abstract class AbstractQuery {
      * @param $offset
      */
     function offset($offset) {
+
+        $limitFragmentFound = false;
+        
+        foreach ($this->sqlFragments as $sqlFragment) {
+            if ($sqlFragment instanceof SQLLimitFragment) {
+                $limitFragmentFound = true;
+            }
+        }
+        
+        if ($limitFragmentFound == false) {
+            throw new \RuntimeException("Cannot add offset without a limit.");
+        }
+        
         $this->sqlFragments[] = new SQLOffsetFragment($offset);
     }
 
@@ -205,11 +222,9 @@ abstract class AbstractQuery {
      * @internal param $nullTable
      */
     //TODO this should be $queriedTable $queriedTable
-    function nullTableAlready(QueriedTable $joinTableMap, TableMap $nullTableMap, $columnValues = array()) {
-        //$newTable = clone $nullTableMap;
+    function nullTable(QueriedTable $joinTableMap, TableMap $nullTableMap, $columnValues = array()) {
 
         $queriedTable = $this->aliasTableMap($nullTableMap);
-        //$newTable->setAbstractQuery($this);
 
         $newFragment = new SQLNullFragment(
             $joinTableMap,
@@ -223,40 +238,40 @@ abstract class AbstractQuery {
         return $queriedTable;
     }
 
-    //This is doing a join and search in one...
-    function searchAlready(QueriedTable $firstTable, TableMap $secondTable, $column, $searchTerm) {
+//    //This is doing a join and search in one...
+//    function searchAlready(QueriedTable $firstTable, TableMap $secondTable, $column, $searchTerm) {
+//
+//        //TODO - why isn't this cloning the table map?
+//        $queriedSecondTable = $this->aliasTableMap($secondTable);
+//
+//        $newFragment = new SQLSearchFragment(
+//            $firstTable,
+//            $queriedSecondTable,
+//            $column,
+//            $searchTerm
+//        );
+//
+//        $this->sqlFragments[] = $newFragment;
+//
+//        return $queriedSecondTable;
+//    }
 
-        //TODO - why isn't this cloning the table map?
-        $queriedSecondTable = $this->aliasTableMap($secondTable);
-
-        $newFragment = new SQLSearchFragment(
-            $firstTable,
-            $queriedSecondTable,
-            $column,
-            $searchTerm
-        );
-
-        $this->sqlFragments[] = $newFragment;
-
-        return $queriedSecondTable;
-    }
-
-    //TODO - this isn't used?
-    function search(
-        QueriedTable $firstTable,
-        QueriedTable $secondTable,
-        $column,
-        $searchTerm) {
-
-        $newFragment = new SQLSearchFragment(
-            $firstTable,
-            $secondTable,
-            $column,
-            $searchTerm
-        );
-
-        $this->sqlFragments[] = $newFragment;
-    }
+//    //TODO - this isn't used?
+//    function search(
+//        QueriedTable $firstTable,
+//        QueriedTable $secondTable,
+//        $column,
+//        $searchTerm) {
+//
+//        $newFragment = new SQLSearchFragment(
+//            $firstTable,
+//            $secondTable,
+//            $column,
+//            $searchTerm
+//        );
+//
+//        $this->sqlFragments[] = $newFragment;
+//    }
 
     function setValue($name, $value){
         $newFragment = new SQLValueFragment($name, $value);

@@ -44,7 +44,7 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
     function testWherePrimary() {
         $queryFactory = new YAMLQueryFactory();
         $query = $queryFactory->create();
-        $query->tableAlready($this->testTable)->wherePrimary(0);
+        $query->table($this->testTable)->wherePrimary(0);
         $data = $query->fetch();
         $data = $data[0];
 
@@ -57,7 +57,7 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
 
     function testWhereColumn() {
         $query = new YAMLQuery();
-        $query->tableAlready($this->testTable)->whereColumn('name', 'Danack');
+        $query->table($this->testTable)->whereColumn('name', 'Danack');
         $contentArray = $query->fetch();
         $data = $contentArray[0];
 
@@ -71,8 +71,8 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
     function testTwoTables() {
         $this->setExpectedException(\BadFunctionCallException::class);
         $query = new YAMLQuery();
-        $query->tableAlready($this->testTable)->whereColumn('name', 'Danack');
-        $query->tableAlready($this->testTable)->whereColumn('value', 12);
+        $query->table($this->testTable)->whereColumn('name', 'Danack');
+        $query->table($this->testTable)->whereColumn('value', 12);
 
         $query->fetch();
     }
@@ -99,13 +99,13 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
 
     function testUpdate() {
         $query = new YAMLQuery();
-        $query->tableAlready($this->testTable)->whereColumn('name', 'Danack');
+        $query->table($this->testTable)->whereColumn('name', 'Danack');
 
         $query->setValue('value', 17);
         $query->update();
 
         $query = new YAMLQuery();
-        $query->tableAlready($this->testTable)->whereColumn('value', 17);
+        $query->table($this->testTable)->whereColumn('value', 17);
         $data = $query->fetch();
 
         $this->assertEquals(1, count($data), "Updated value not found.");

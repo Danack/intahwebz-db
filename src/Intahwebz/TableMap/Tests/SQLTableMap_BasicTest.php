@@ -61,50 +61,22 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $this->sqlQueryFactory = $this->provider->make(Intahwebz\TableMap\SQLQueryFactory::class);
     }
 
-    function testInsert() {
+    function testInsertDTO() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
-        //$contentDTO = new \BaseReality\DTO\ContentDTO();
-
         $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentSQLTableDTO;
-        
         $insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
         $this->assertGreaterThan(0, $insertID, "Insert failed?");
+
+        $insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
     }
 
-    function testInsertHash() {
-        $sqlInsertQuery = $this->sqlQueryFactory->create();
-        $insertTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
-        
-        $username = 'JohnDoe';
-        $password = '12345';
-        
-        $sqlInsertQuery->insertIntoMappedTable($insertTable, ['username' => $username, 'passwordHash' => $password]);
 
-        $sqlVerifyQuery = $this->sqlQueryFactory->create();
-        $verifyTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
-        $queriedTable = $sqlVerifyQuery->tableAlready($verifyTable);
-        $queriedTable->whereColumn('username', $username);
 
-        $mockHashSQLTableDTO = $sqlVerifyQuery->fetchSingle(\Intahwebz\TableMap\Tests\DTO\MockHashSQLTableDTO::class);
 
-        $validated = password_verify($password, $mockHashSQLTableDTO->passwordHash);
 
-        echo "Why no type hinting? for type: ".get_class($mockHashSQLTableDTO);
-        
-        $this->assertTrue($validated, 'Password hash is borked');
 
-        $options = array('cost' => 12);
-        $rehash = password_needs_rehash(
-            $mockHashSQLTableDTO->passwordHash, 
-            PASSWORD_BCRYPT, 
-            $options
-        );
-        
-        $this->assertTrue($rehash, "Required rehash not detected correctly.");
-    }
-
-    function testInsert2() {
+    function testInsertArray() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
 
@@ -119,18 +91,47 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    function testInsertHash() {
+        $sqlInsertQuery = $this->sqlQueryFactory->create();
+        $insertTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
+
+        $username = 'JohnDoe';
+        $password = '12345';
+
+        $sqlInsertQuery->insertIntoMappedTable($insertTable, ['username' => $username, 'passwordHash' => $password]);
+
+        $sqlVerifyQuery = $this->sqlQueryFactory->create();
+        $verifyTable = $this->provider->make(Intahwebz\TableMap\Tests\MockHashSQLTable::class);
+        $queriedTable = $sqlVerifyQuery->table($verifyTable);
+        $queriedTable->whereColumn('username', $username);
+
+        $mockHashSQLTableDTO = $sqlVerifyQuery->fetchSingle(\Intahwebz\TableMap\Tests\DTO\MockHashSQLTableDTO::class);
+
+        $validated = password_verify($password, $mockHashSQLTableDTO->passwordHash);
+
+        $this->assertTrue($validated, 'Password hash is borked');
+
+        $options = array('cost' => 12);
+        $rehash = password_needs_rehash(
+            $mockHashSQLTableDTO->passwordHash,
+            PASSWORD_BCRYPT,
+            $options
+        );
+
+        $this->assertTrue($rehash, "Required rehash not detected correctly.");
+    }
+
+
 
     function testSimplest() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $sqlQuery->tableAlready($table)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
         $contentArray = $sqlQuery->fetch();
 
         if (isset($contentArray[0]) == false) {
             return null;
         }
-
-        //return castToObject(\BaseReality\Content\Note::class, $contentArray[0]);
 
         return castToObject(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray[0]);
     }
@@ -141,12 +142,12 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $sqlQuery->tableAlready($table)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
 
         $noteParams = array(
             'columns' => array(
                 'title' => "A new title",
-                'text' => "An updated peice of text.",
+                'text' => "An updated piece of text.",
             ),
 
             'where' => array(
@@ -162,10 +163,9 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $tableAlias = $sqlQuery->tableAlready($table)->whereColumn('mockNoteID', 1);
+        $tableAlias = $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
 
         $sqlQuery->group($tableAlias, 'mockNoteID');
-
 
         $noteParams = array(
             'columns' => array(
@@ -182,17 +182,53 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    function testMissingTypeException() {
+        $this->setExpectedException(\BadFunctionCallException::class);
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
+        $tableAlias = $sqlQuery->table($table);
+        $sqlQuery->where($tableAlias->getAliasedPrimaryColumn()." = ?", 1);
+    }
+    
+    
+
     function testOrder() {
 
         $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $tableAlias = $sqlQuery->tableAlready($table);
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
+        $tableAlias = $sqlQuery->table($table);
 
-        $sqlQuery->order($tableAlias, 'mockNoteID');
+        $sqlQuery->order($tableAlias, 'mockContentID', 'DESC');
 
-        //$contentArray =
-            $sqlQuery->fetch();
-        //TODO - actually check for the order
+        $contentArray = $sqlQuery->fetch();
+        $this->assertEquals(2, count($contentArray));        
+        $this->assertEquals(2, $contentArray[0]['mockContent.mockContentID']);
+    }
+
+
+    function testLimit() {
+
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
+        $sqlQuery->table($table);
+
+        $sqlQuery->limit(50);
+        $sqlQuery->offset(1);
+
+        $contentArray = $sqlQuery->fetch();
+
+        $this->assertEquals(1, count($contentArray));
+        $this->assertEquals(2, $contentArray[0]['mockContent.mockContentID']);
+    }
+
+    function testLimitMissing() {
+        $this->setExpectedException(\RuntimeException::class);
+
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
+        $sqlQuery->table($table);
+
+        $sqlQuery->offset(2);
     }
 
 
@@ -202,9 +238,9 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $noteTable = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
         $contentTable = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
 
-        $tableAlias = $sqlQuery->tableAlready($contentTable);
+        $tableAlias = $sqlQuery->table($contentTable);
 
-        $sqlQuery->nullTableAlready($tableAlias, $noteTable);
+        $sqlQuery->nullTable($tableAlias, $noteTable);
 
         //$contentArray =
             $sqlQuery->fetch();
@@ -217,7 +253,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     function testColumns() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $aliasedTable = $sqlQuery->tableAlready($table)->whereColumn('mockNoteID', 1);
+        $aliasedTable = $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
         $sqlQuery->select($aliasedTable, "mockNoteID");
         //$sqlQuery->addColumn($aliasedTable, 'mockNoteID');
         //$contentArray =
@@ -226,11 +262,24 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+
+    function testSelfJoin() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
+        $aliasedTable = $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
+
+        $sqlQuery->table($table);
+        $sqlQuery->fetch();
+    }
+
+
+
+
     function testColumnIn() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
         //$aliasedTable =
-            $sqlQuery->tableAlready($table)->whereColumnIn('mockNoteID', [1, 2, 3]);
+            $sqlQuery->table($table)->whereColumnIn('mockNoteID', [1, 2, 3]);
 
         //$sqlQuery->addColumn($aliasedTable, 'mockNoteID');
         //$contentArray =
@@ -244,7 +293,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
         //$aliasedTable =
-            $sqlQuery->tableAlready($table)->whereColumnFunction('year', 'datestamp', $year);
+            $sqlQuery->table($table)->whereColumnFunction('year', 'datestamp', $year);
         //$contentArray =
             $sqlQuery->fetch();
     }
@@ -257,30 +306,23 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockRandDataSQLTable::class);
-        //new \BaseReality\DTO\ContentDTO();
-
-        //new MockRandDataSQLTable
-        
 
         for ($x=0 ; $x<50 ; $x++) {
             $data['title'] = generateRandomString(10);
             $data['text'] = generateRandomString(50);
-
             $sqlQuery->insertIntoMappedTable($table, $data);
         }
-
 
         for ($x=0 ; $x<60 ; $x++) {
             $sqlQuery = $this->sqlQueryFactory->create();
             $table = $this->provider->make(Intahwebz\TableMap\Tests\MockRandDataSQLTable::class);
-            $sqlQuery->tableAlready($table)->rand();
+            $sqlQuery->table($table)->rand();
             $result = $sqlQuery->fetch();
 
             $this->assertEquals(1, count($result));
             //TODO - how to test random results.
             //echo $result[0]['mockRandData.mockRandDataID'].", ";
         }
-        //exit(0);
     }
 
 
@@ -311,6 +353,17 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         $sqlQuery->getAncestors($table, 6);
 
+    }
+
+    function testInsertDTODirectly() {
+
+        //$sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
+        $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentSQLTableDTO;
+        //$insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
+        $insertID =$this->sqlQueryFactory->insertIntoMappedTable($table, $contentDTO);
+
+        $this->assertGreaterThan(0, $insertID, "Insert failed?");
     }
 
 

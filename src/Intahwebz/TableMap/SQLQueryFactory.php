@@ -16,6 +16,9 @@ class SQLQueryFactory {
         $this->dbConnection = $dbConnection;
     }
 
+    /**
+     * @return SQLQuery
+     */
     function create() {
         return new SQLQuery($this->dbConnection);
     }

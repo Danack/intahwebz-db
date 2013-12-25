@@ -79,7 +79,7 @@ class SQLTableMap_RandTest extends \PHPUnit_Framework_TestCase {
         for ($x=0 ; $x<60 ; $x++) {
             $sqlQuery = $this->sqlQueryFactory->create();
             $table = $this->provider->make(Intahwebz\TableMap\Tests\MockRandDataSQLTable::class);
-            $sqlQuery->tableAlready($table)->rand();
+            $sqlQuery->table($table)->rand();
             $result = $sqlQuery->fetch();
 
             $this->assertEquals(1, count($result));
