@@ -5,37 +5,31 @@ namespace Intahwebz\DBSync;
 
 class MySQLOperation{
 
-	private $upgradeSQL = NULL;
+    private $upgradeSQL = NULL;
 
-	public $operationType = FALSE;
+    public $operationType = FALSE;
 
-	public $comment;
+    public $comment;
 
-	public $count;
+    public $count;
 
-	private static $instanceCount = 0;
+    private static $instanceCount = 0;
 
+    function __construct($upgradeSQL, $operationType, $comment = ""){
+        $this->upgradeSQL = $upgradeSQL;
+        $this->operationType = $operationType;
+        $this->comment = $comment;
 
-	function __construct($upgradeSQL, $operationType, $comment = ""){
-		$this->upgradeSQL = $upgradeSQL;
-		$this->operationType = $operationType;
-		$this->comment = $comment;
+        $this->count = self::$instanceCount;
+        self::$instanceCount++;
+    }
 
-		$this->count = self::$instanceCount;
-		self::$instanceCount++;
-	}
+    function getOperationType(){
+        return $this->operationType;
+    }
 
-	function	getOperationType(){
-		if($this->operationType == FALSE){
-			echo "Unknown operation type - aborting.";
-			exit(0);
-		}
-
-		return	$this->operationType;
-	}
-
-	function 	getUpgradeSQL(){
-		return	$this->upgradeSQL;
-	}
+    function getUpgradeSQL(){
+        return $this->upgradeSQL;
+    }
 }
 

@@ -1,8 +1,6 @@
 <?php
 
-asdasds
-
-class SQLTableMap_Creation extends \PHPUnit_Framework_TestCase {
+class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @var \Auryn\Provider
@@ -30,8 +28,6 @@ class SQLTableMap_Creation extends \PHPUnit_Framework_TestCase {
         //$this->sqlQueryFactory = $this->provider->make(Intahwebz\TableMap\SQLQueryFactory::class);
     }
     
-    asdsd
-
     function testTableCreation() {
 
         $tablesToUprade = [
@@ -46,10 +42,7 @@ class SQLTableMap_Creation extends \PHPUnit_Framework_TestCase {
         /** @var $dbSync Intahwebz\DBSync\DBSync */
         $dbSync = $this->provider->make(Intahwebz\DBSync\DBSync::class);
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
-        
-        echo "lol qut?";
-        
-        
+
         foreach($tablesToUprade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
             $knownTable->generateObjectFile(

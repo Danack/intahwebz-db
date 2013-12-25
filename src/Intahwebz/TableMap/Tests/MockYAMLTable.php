@@ -7,10 +7,6 @@ class MockYAMLTable extends \Intahwebz\TableMap\YAMLTableMap  {
 
     public $objectName = 'MockYaml';
 
-//    function getClassName() {
-//        return "MockYaml";
-//    }
-
     protected $tableDefinition = array(
         'tableName' => 'MockYaml',
             'storage' => 'YAML',
