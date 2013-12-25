@@ -27,10 +27,6 @@ abstract class TableMap {
         return $this->objectName;
     }
 
-    function getNamespacedClassName() {
-        
-    }
-
     function getClassName() {
         $className = get_class($this);
 

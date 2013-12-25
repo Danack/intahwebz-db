@@ -21,9 +21,9 @@ class MockFieldChangeBeforeTable extends SQLTableMap  {
         return $tableDefinition;
     }
 
-    function getClassName() {
-        return "MockNote";
-    }
+//    function getClassName() {
+//        return "MockNote";
+//    }
 }
 
  

@@ -15,8 +15,9 @@
 
     <filter>
         <blacklist>
-            <!-- <directory>./src/BaseReality/Controller/Tests/</directory>
-            <directory>./src/Intahwebz/CSSGenerator/Tests/</directory>  -->
+            <directory>./src/Intahwebz/DB/Tests/</directory>
+            <directory>./src/Intahwebz/DBSync/Tests/</directory>
+            <directory>./src/Intahwebz/TableMap/Tests/</directory>
         </blacklist>
         <whitelist>
             <directory>./src/BaseReality</directory>

@@ -20,9 +20,9 @@ class MockHashSQLTable extends SQLTableMap  {
         return $tableDefinition;
     }
 
-    function getClassName() {
-        return "MockHash";
-    }
+//    function getClassName() {
+//        return "MockHash";
+//    }
 }
 
  

@@ -20,9 +20,9 @@ class MockContentSQLTable extends SQLTableMap  {
         return $tableDefinition;
     }
 
-    function getClassName() {
-        return "Content";
-    }
+//    function getClassName() {
+//        return "Content";
+//    }
 }
 
  

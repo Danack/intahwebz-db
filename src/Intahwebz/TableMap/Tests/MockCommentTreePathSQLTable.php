@@ -22,11 +22,11 @@ class MockCommentTreePathSQLTable extends SQLTableMap  {
         return $tableDefinition;
     }
 
-    function getClassName() {
-        //TODO - this should throw an exception, as this table dosesn't represent an
-        //instantiable class.
-        return parent::getClassName();
-    }
+//    function getClassName() {
+//        //TODO - this should throw an exception, as this table dosesn't represent an
+//        //instantiable class.
+//        return parent::getClassName();
+//    }
 }
 
  
