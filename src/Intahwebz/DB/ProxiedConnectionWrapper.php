@@ -12,25 +12,34 @@ class ProxiedConnectionWrapper implements DBConnection {
      */
     private $instance = null;
 
+    /**
+     * @var StatementWrapperFactory
+     */
+    private $statementWrapperFactory;
+
     private $host;
     private $username;
     private $password;
     private $port;
     private $socket;
     
-    function __construct(LoggerInterface $logger, $host, $username, $password, $port, $socket) {
+    function __construct(LoggerInterface $logger, 
+                         StatementWrapperFactory $statementWrapperFactory,
+                         $host, $username, $password, $port, $socket) {
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;
         $this->port = $port;
         $this->socket = $socket;
         $this->logger = $logger;
+        $this->statementWrapperFactory = $statementWrapperFactory;
     }
 
-    function checkInstance(){
+    function checkInstance() {
         if ($this->instance == null) {
             $this->instance = new ConnectionWrapper(
                 $this->logger,
+                $this->statementWrapperFactory,
                 $this->host,
                 $this->username,
                 $this->password,
@@ -40,7 +49,7 @@ class ProxiedConnectionWrapper implements DBConnection {
         }
     }
 
-    function activateTransaction(){
+    function activateTransaction() {
         $this->checkInstance();
         return $this->instance->activateTransaction();
     }
@@ -60,17 +69,17 @@ class ProxiedConnectionWrapper implements DBConnection {
         return $this->instance->rollback();
     }
 
-    function prepareStatement($queryString, $log = FALSE, $callstackLevel = 0){
+    function prepareStatement($queryString, $log = FALSE, $callstackLevel = 0) {
         $this->checkInstance();
         return $this->instance->prepareStatement($queryString, $log, $callstackLevel);
     }
 
-    function prepareAndExecute($queryString, $log = FALSE){
+    function prepareAndExecute($queryString, $log = FALSE) {
         $this->checkInstance();
         return $this->instance->prepareAndExecute($queryString, $log);
     }
 
-    function directExecute($queryString){
+    function directExecute($queryString) {
         $this->checkInstance();
         return $this->instance->directExecute($queryString);
     }

@@ -10,15 +10,28 @@ class ConnectionWrapper implements DBConnection {
     use \Intahwebz\SafeAccess;
 
     private $forceUTF8Names = false;
-    var $mysqli;
-    
+
+    /**
+     * @var \mysqli
+     */
+    private $mysqli;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
     private $logger;
 
-    static $MYSQL_PIPE_UNAVAILABLE_COUNT = 0;
+    /**
+     * @var StatementWrapperFactory
+     */
+    private $statementWrapperFactory;
 
-    static $prepareTime = 0;
-    
-    function __construct(LoggerInterface $logger, $host, $username, $password, $port, $socket) {
+    private $MYSQL_PIPE_UNAVAILABLE_COUNT = 0;
+
+    function __construct(
+        LoggerInterface $logger, 
+        StatementWrapperFactory $statementWrapperFactory,
+        $host, $username, $password, $port, $socket) {
 
         //Convert any error to exception?
         //Need to investigate what happens with errors on connection.
@@ -27,6 +40,7 @@ class ConnectionWrapper implements DBConnection {
         //mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         $this->logger = $logger;
+        $this->statementWrapperFactory = $statementWrapperFactory;
         
         $finished = false;
 
@@ -54,23 +68,21 @@ class ConnectionWrapper implements DBConnection {
                     $errorNumber == 2017 || //Errorcode: 2017. Reason is Can't open named pipe to host: .  pipe: /tmp/mysql (2)
                     $errorNumber == 2003
                 ) {
-                    $sleepDelay = 1;
+                    //$sleepDelay = 1;
 
-                    self::$MYSQL_PIPE_UNAVAILABLE_COUNT++;
-                    if (self::$MYSQL_PIPE_UNAVAILABLE_COUNT != 0 && (self::$MYSQL_PIPE_UNAVAILABLE_COUNT % 10) == 0) {
+                    $this->MYSQL_PIPE_UNAVAILABLE_COUNT++;
+                    if ($this->MYSQL_PIPE_UNAVAILABLE_COUNT != 0 && ($this->MYSQL_PIPE_UNAVAILABLE_COUNT % 10) == 0) {
                         throw new DBException("MySQL not available.");
                     }
 
-                    sleep($sleepDelay);
+                    //sleep($sleepDelay);
+                    usleep(100 * 1000);
                 }
                 else if ($errorNumber == 2002) {
                     throw new DatabaseMissingException("Database not available.");
                 }
                 else {
-                    //setOnScreenDebug(true);
                     throw new DBException("Can't connect to MySQL Server [" . MYSQL_SERVER . "]. Errorcode: " . $errorNumber . ". Reason is " . \mysqli_connect_error() . ". As this reason isn't recognised, terminating application.");
-//                    $finished = true; // about to go boom for sure.
-                    //exit;
                 }
             }
             else {
@@ -78,8 +90,6 @@ class ConnectionWrapper implements DBConnection {
                 $finished = true;
             }
         }
-
-
 
         if ($this->forceUTF8Names == true) {
             //If the MySQL server does not use UTF8 by default then strings sent to it are sent it whatever
@@ -113,29 +123,12 @@ class ConnectionWrapper implements DBConnection {
         $this->mysqli->autocommit(true);
     }
 
-//    public function finalise() {
-//        if (SERVER_REPORT_SQL_EXECUTE_TIMINGS) {
-//            echo "<br/>Total SQL Preparation time is " . self::$prepareTime . "<br/>";
-//            echo "<br/>Total MYSQL_PIPE_UNAVAILABLE_COUNT is " . self::$MYSQL_PIPE_UNAVAILABLE_COUNT . "<br/>";
-//        }
-//    }
-//
-//    public function    reportTimings() {
-//        echo "<br/>Total SQL Preparation time is " . self::$prepareTime . "<br/>";
-//        echo "<br/>Total MYSQL_PIPE_UNAVAILABLE_COUNT is " . self::$MYSQL_PIPE_UNAVAILABLE_COUNT . "<br/>";
-//    }
-
     function prepareStatement($queryString, $log = false, $callstackLevel = 0) {
 
-        //$startTime = microtime();
         $statement = $this->mysqli->prepare($queryString);
-
-        //self::$prepareTime += microtime_diff($startTime);
 
         if ($statement == false) {
             $errorString = "Error preparing statement " . $this->mysqli->error . ". Query was [\n" . $queryString . "\n]";
-            //logToScreen($errorString);
-            //logToFileFatal($errorString);
 
             $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
 
@@ -143,8 +136,7 @@ class ConnectionWrapper implements DBConnection {
         }
         else {
             $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
-            $statementWrapper = new StatementWrapper($statement, $calledFromString, $this->logger);
-
+            $statementWrapper = $this->statementWrapperFactory->create($statement, $calledFromString);
             $statementWrapper->setQueryString($queryString);
 
             return $statementWrapper;
@@ -172,9 +164,12 @@ class ConnectionWrapper implements DBConnection {
         return $result;
     }
 
-    function getLastError(){
+    function getLastError() {
+        if ($this->mysqli == null) {
+            return "No connection yet.";
+        }
+        
         return "".$this->mysqli->errno.":".$this->mysqli->error;
-        //return $this->mysqli->errno;
     }
 
     function selectSchema($schema) {
