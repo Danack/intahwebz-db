@@ -136,7 +136,7 @@ class ConnectionWrapper implements DBConnection {
         }
         else {
             $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
-            $statementWrapper = $this->statementWrapperFactory->create($statement, $calledFromString);
+            $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString);
             $statementWrapper->setQueryString($queryString);
 
             return $statementWrapper;

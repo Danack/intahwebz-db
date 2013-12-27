@@ -22,6 +22,10 @@ class StatementWrapper {
 
     var $queryString = '';
 
+
+    var $boundParameters;
+
+
     function __construct(\mysqli_stmt $statement, $createLine, LoggerInterface $logger) {
         $this->createLine = $createLine;
         $this->statement = $statement;
@@ -62,6 +66,9 @@ class StatementWrapper {
 
         $finalParamArray = array($typesString);
         $finalParamArray = array_merge($finalParamArray, $parametersArray);
+
+        $this->boundParameters = $parametersArray;
+        
         call_user_func_array(array($this->statement, "bind_param"), $finalParamArray);
     }
 
@@ -87,6 +94,8 @@ class StatementWrapper {
             $arguments[] = &$$varName;
         }
 
+        $this->boundParameters = $arguments;
+        
         return call_user_func_array(array(&$this->statement, 'bind_result'), $arguments);
     }
 
@@ -128,6 +137,8 @@ class StatementWrapper {
             $arguments[] = &$$varName;
         }
 
+        $this->boundParameters = $arguments;
+        
         call_user_func_array(array(&$this->statement, 'bind_param'), $arguments);
     }
 
