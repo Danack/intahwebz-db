@@ -10,7 +10,7 @@ define('UTF8_COLLATION', 'utf8mb4_unicode_ci');
 //define('UTF8_CHARSET', 'utf8');
 //define('UTF8_COLLATION', 'utf8_general_ci');
 
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 use Intahwebz\Exception\UnsupportedOperationException;
 
 
@@ -36,7 +36,7 @@ define('OPERATION_TYPE_MODIFY_INDEX', 'OPERATION_TYPE_MODIFY_INDEX');
 class DBSync{
 
     /**
-     * @var \Intahwebz\DB\DBConnection
+     * @var \Intahwebz\DB\Connection
      */
     private $dbConnection;
 
@@ -65,7 +65,7 @@ class DBSync{
      */
     private $mySQLOperations = array();
 
-    function __construct(DBConnection $dbConnection) {
+    function __construct(Connection $dbConnection) {
         $this->dbConnection = $dbConnection;
     }
 
@@ -80,7 +80,7 @@ class DBSync{
         }
     }
 
-    function createSchema(DBConnection $connection, $schemaName) {
+    function createSchema(Connection $connection, $schemaName) {
         $queryString = "CREATE SCHEMA IF NOT EXISTS $schemaName
     DEFAULT CHARACTER SET = ".UTF8_CHARSET."
     DEFAULT COLLATE = ".UTF8_COLLATION.";";
@@ -88,7 +88,7 @@ class DBSync{
         $connection->directExecute($queryString);
     }
 
-    public static function checkSchemaExists(DBConnection $connection, $schemaName) {
+    public static function checkSchemaExists(Connection $connection, $schemaName) {
         $result = false;
         $queryString = "show schemas where `Database` = '$schemaName';";
         $statementWrapper = $connection->prepareAndExecute($queryString);

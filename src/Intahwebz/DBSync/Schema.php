@@ -5,7 +5,7 @@ namespace Intahwebz\DBSync;
 
 use Intahwebz\DB as DB;
 
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 
 use Intahwebz\TableMap\SQLTableMap;
 use Intahwebz\TableMap\TableMap;
@@ -41,7 +41,7 @@ class Schema {
         return FALSE;
     }
 
-    function initFromDatabase(DBConnection $connection) {
+    function initFromDatabase(Connection $connection) {
         $schemaExists = DBSync::checkSchemaExists($connection, $this->name);
 
         if($schemaExists == FALSE){
@@ -55,7 +55,7 @@ class Schema {
     }
 
 
-    function initFromDatabaseExisting(DBConnection $connection) {
+    function initFromDatabaseExisting(Connection $connection) {
         $query = "SHOW TABLES FROM ".$this->name;
 
         $statementWrapper = $connection->prepareAndExecute($query);

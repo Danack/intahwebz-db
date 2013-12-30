@@ -4,10 +4,10 @@
 namespace Intahwebz\DB;
 
 
-interface StatementWrapperFactory {
+interface StatementFactory {
 
     /**
-     * @return StatementWrapper
+     * @return Statement
      */
     function create($statement, $calledFromString);
 } 

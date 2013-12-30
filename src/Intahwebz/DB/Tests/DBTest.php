@@ -15,7 +15,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     private $provider;
 
     /**
-     * @var \Intahwebz\DB\ConnectionWrapper
+     * @var \Intahwebz\DB\MySQLiConnection
      */
     private $dbConnection;
 
@@ -26,7 +26,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     protected function setUp(){
 
         $this->provider = createProvider([]);
-        $this->dbConnection = $this->provider->make('Intahwebz\DB\ConnectionWrapper');
+        $this->dbConnection = $this->provider->make(Intahwebz\DB\Connection::class);
 
 
         $mocks = [

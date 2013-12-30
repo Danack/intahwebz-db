@@ -3,7 +3,7 @@
 namespace Intahwebz\DBSync;
 
 
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 
 class DatabaseTable{
 
@@ -28,7 +28,7 @@ class DatabaseTable{
         $this->tableName = $tableName;
     }
 
-    function initFromDB(DBConnection $dbConnection) {
+    function initFromDB(Connection $dbConnection) {
         $this->initFieldsForTableFromDB($dbConnection);
         $this->initFKConstraintsFromDB($dbConnection);
         $this->initIndicesFromDB($dbConnection);
@@ -279,7 +279,7 @@ class DatabaseTable{
         return	$tableChangeOperations;
     }
 
-    function	initFieldsForTableFromDB(DBConnection $connection){
+    function	initFieldsForTableFromDB(Connection $connection){
         $query = "SHOW FIELDS FROM ".$this->schemaName.".".$this->tableName;
 
         $statementWrapper = $connection->prepareAndExecute($query);
@@ -315,7 +315,7 @@ class DatabaseTable{
         $statementWrapper->close();
     }
 
-    function	initIndicesFromDB(DBConnection $connection){
+    function	initIndicesFromDB(Connection $connection){
         $query = "SHOW INDEX FROM ".$this->schemaName.".".$this->tableName;
 
         $statementWrapper = $connection->prepareAndExecute($query);
@@ -392,12 +392,12 @@ class DatabaseTable{
     /**
      * @internal param $schema
      * @internal param $tableName
-     * @param \Intahwebz\DB\DBConnection $dbConnection
+     * @param \Intahwebz\DB\Connection $dbConnection
      * @return array
      *
      * Note - apparently only one prepared statement can be open on the tables information_schema - so do things separately.
      */
-    function	initFKConstraintsFromDB(DBConnection $dbConnection){
+    function	initFKConstraintsFromDB(Connection $dbConnection){
         //TODO - sort out the freaking table name cases.
         $queryStringConstraintInfo = "select	CONSTRAINT_SCHEMA,
                             CONSTRAINT_NAME,

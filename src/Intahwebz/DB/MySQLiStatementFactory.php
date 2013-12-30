@@ -6,7 +6,7 @@ namespace Intahwebz\DB;
 use Psr\Log\LoggerInterface;
 
 
-class StandardStatementWrapperFactory implements StatementWrapperFactory {
+class MySQLiStatementFactory implements StatementFactory {
 
     private $logger;
     
@@ -15,10 +15,10 @@ class StandardStatementWrapperFactory implements StatementWrapperFactory {
     }
 
     /**
-     * @return StatementWrapper
+     * @return MySQLiStatement
      */
     function create($statement, $calledFromString) {
-        $statementWrapper = new StatementWrapper($statement, $calledFromString, $this->logger);
+        $statementWrapper = new MySQLiStatement($statement, $calledFromString, $this->logger);
 
         return $statementWrapper;
     }

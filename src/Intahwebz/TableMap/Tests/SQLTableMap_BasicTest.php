@@ -26,7 +26,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);
         $dbSync->processUpgradeForSchema('mocks', []);
 
-        $tablesToUprade = [
+        $tablesToUpgrade = [
             new Intahwebz\TableMap\Tests\MockContentSQLTable(),
             new Intahwebz\TableMap\Tests\MockNoteSQLTable(),
             new Intahwebz\TableMap\Tests\MockHashSQLTable(),
@@ -37,11 +37,11 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
         $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
-        $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
+        $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
 
         
-        foreach($tablesToUprade as $knownTable){
+        foreach($tablesToUpgrade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
             $knownTable->generateObjectFile(
                 realpath(__DIR__)."/DTO/",

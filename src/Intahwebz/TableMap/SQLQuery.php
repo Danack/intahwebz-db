@@ -2,7 +2,7 @@
 
 namespace Intahwebz\TableMap;
 
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
 //use PasswordHash\PasswordHash;
@@ -18,14 +18,14 @@ class SQLQuery extends AbstractQuery{
     var $commaString = "";
 
     /**
-     * @var DBConnection
+     * @var Connection
      */
     var $dbConnection;
 
     static $showSQL = false;
     static $showSQLAndExit = false;
 
-    function __construct(DBConnection $dbConnection) {
+    function __construct(Connection $dbConnection) {
         $this->dbConnection = $dbConnection;
     }
 
@@ -690,7 +690,7 @@ done:
     }
 
 
-    function deleteFromMappedTableCount(DBConnection $dbConnection) {
+    function deleteFromMappedTableCount(Connection $dbConnection) {
         unused($dbConnection);
         throw new UnsupportedOperationException("deleteFromMappedTableCount is not yet implemented.");
     }

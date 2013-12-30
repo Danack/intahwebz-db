@@ -3,16 +3,16 @@
 
 namespace Intahwebz\TableMap;
 
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 
 class SQLQueryFactory {
 
     /**
-     * @var \Intahwebz\DB\DBConnection
+     * @var \Intahwebz\DB\Connection
      */
     private $dbConnection;
 
-    function __construct(DBConnection $dbConnection) {
+    function __construct(Connection $dbConnection) {
         $this->dbConnection = $dbConnection;
     }
 

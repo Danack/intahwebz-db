@@ -5,7 +5,7 @@ namespace Intahwebz\DB;
 use Psr\Log\LoggerInterface;
 
 
-class ConnectionWrapper implements DBConnection {
+class MySQLiConnection implements Connection {
 
     use \Intahwebz\SafeAccess;
 
@@ -22,7 +22,7 @@ class ConnectionWrapper implements DBConnection {
     private $logger;
 
     /**
-     * @var StatementWrapperFactory
+     * @var StatementFactory
      */
     private $statementWrapperFactory;
 
@@ -30,7 +30,7 @@ class ConnectionWrapper implements DBConnection {
 
     function __construct(
         LoggerInterface $logger, 
-        StatementWrapperFactory $statementWrapperFactory,
+        StatementFactory $statementWrapperFactory,
         $host, $username, $password, $port, $socket) {
 
         //Convert any error to exception?

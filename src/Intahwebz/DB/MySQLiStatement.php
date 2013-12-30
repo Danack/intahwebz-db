@@ -2,11 +2,10 @@
 
 namespace Intahwebz\DB;
 
-use Intahwebz\Exception\UnsupportedOperationException;
 use Psr\Log\LoggerInterface;
 
 
-class StatementWrapper {
+class MySQLiStatement implements Statement {
 
     var $createLine;
 
@@ -22,9 +21,7 @@ class StatementWrapper {
 
     var $queryString = '';
 
-
     var $boundParameters;
-
 
     function __construct(\mysqli_stmt $statement, $createLine, LoggerInterface $logger) {
         $this->createLine = $createLine;
@@ -35,7 +32,7 @@ class StatementWrapper {
 
     function __destruct() {
         if ($this->open == true) {
-            $this->logger("Forgot to close statement ".$this->createLine);
+            $this->logger->warning("Forgot to close statement ".$this->createLine);
         }
     }
     
@@ -84,7 +81,7 @@ class StatementWrapper {
         if($numberOfArguments > 21){
             $errorString = "Error: StatementWrapper::bindParam only supports up to 21 parameters, trying to set ".$numberOfArguments.".";
 
-            throw new BadFunctionCallException($errorString);
+            throw new \BadFunctionCallException($errorString);
         }
 
         $arguments = array();
@@ -118,14 +115,14 @@ class StatementWrapper {
 
         if($numberOfArguments >= 1){
             if($numberOfArguments != (1 + mb_strlen($types))){
-                throw new BadFunctionCallException("There is a mismatch in the number of types string being passed into the query and the actual number of types.");
+                throw new \BadFunctionCallException("There is a mismatch in the number of types string being passed into the query and the actual number of types.");
             }
         }
 
         if($numberOfArguments > 11){
             $errorString = "Error: StatementWrapper::bindParam only supports up to 10 parameters, trying to set ".($numberOfArguments - 1).".";
 
-            throw new BadFunctionCallException($errorString);
+            throw new \BadFunctionCallException($errorString);
         }
 
         $arguments = array();
@@ -161,7 +158,7 @@ class StatementWrapper {
             $size += 8192;
 
             if($size > 4 * 1024 * 1024){
-                throw new BadFunctionCallException("file is too large to upload, max size is 4 megabytes.");
+                throw new \BadFunctionCallException("file is too large to upload, max size is 4 megabytes.");
             }
         }
         fclose($fp);

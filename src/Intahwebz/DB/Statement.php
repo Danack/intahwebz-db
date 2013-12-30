@@ -3,7 +3,7 @@
 namespace Intahwebz\DB;
 
 
-interface Statement{
+interface Statement {
 
 
     /**
@@ -14,12 +14,12 @@ interface Statement{
      */
     public function fetch();
 
-    function	setQueryString($queryString);
+    function setQueryString($queryString);
 
     /**
      * @param $parameterArray Array of ($type, $reference)
      */
-    function	bindParameterArray($parameterArray);
+    function bindParameterArray($parameterArray);
 
     function bindResult(/** @noinspection PhpUnusedParameterInspection */
         &$var0, &$var1, &$var2 = false, &$var3 = false, &$var4 = false, &$var5 = false,
@@ -47,9 +47,7 @@ interface Statement{
 
     function getInsertID();
 
-    static function finalise();
-
-    public static function	reportTimings();
+    //static function finalise();
 
     function sendBigString($paramID, $largeString);
 

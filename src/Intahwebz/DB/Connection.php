@@ -2,7 +2,7 @@
 
 namespace Intahwebz\DB;
 
-interface DBConnection {
+interface Connection {
     
     function activateTransaction();
 
@@ -20,14 +20,14 @@ interface DBConnection {
      * @param $queryString
      * @param bool $log
      * @param int $callstackLevel
-     * @return StatementWrapper
+     * @return MySQLiStatement
      */
     function prepareStatement($queryString, $log = FALSE, $callstackLevel = 0);
 
     /**
      * @param $queryString
      * @param bool $log
-     * @return StatementWrapper
+     * @return MySQLiStatement
      */
     function prepareAndExecute($queryString, $log = FALSE);
 

@@ -5,15 +5,15 @@ namespace Intahwebz\DB;
 
 use Psr\Log\LoggerInterface;
 
-class ProxiedConnectionWrapper implements DBConnection {
+class ProxiedConnectionWrapper implements Connection {
 
     /**
-     * @var DBConnection
+     * @var Connection
      */
     private $instance = null;
 
     /**
-     * @var StatementWrapperFactory
+     * @var StatementFactory
      */
     private $statementWrapperFactory;
 
@@ -24,7 +24,7 @@ class ProxiedConnectionWrapper implements DBConnection {
     private $socket;
     
     function __construct(LoggerInterface $logger, 
-                         StatementWrapperFactory $statementWrapperFactory,
+                         StatementFactory $statementWrapperFactory,
                          $host, $username, $password, $port, $socket) {
         $this->host = $host;
         $this->username = $username;
@@ -37,7 +37,7 @@ class ProxiedConnectionWrapper implements DBConnection {
 
     function checkInstance() {
         if ($this->instance == null) {
-            $this->instance = new ConnectionWrapper(
+            $this->instance = new MySQLiConnection(
                 $this->logger,
                 $this->statementWrapperFactory,
                 $this->host,

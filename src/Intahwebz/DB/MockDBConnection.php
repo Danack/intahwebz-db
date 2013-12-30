@@ -4,7 +4,7 @@
 namespace Intahwebz\DB;
 
 
-class MockDBConnection implements DBConnection {
+class MockDBConnection implements Connection {
     function activateTransaction() {
     }
 
@@ -27,7 +27,7 @@ class MockDBConnection implements DBConnection {
      * @param $queryString
      * @param bool $log
      * @param int $callstackLevel
-     * @return StatementWrapper
+     * @return MySQLiStatement
      */
     function prepareStatement($queryString, $log = false, $callstackLevel = 0) {
 
@@ -38,7 +38,7 @@ class MockDBConnection implements DBConnection {
     /**
      * @param $queryString
      * @param bool $log
-     * @return StatementWrapper
+     * @return MySQLiStatement
      */
     function prepareAndExecute($queryString, $log = false) {
     }

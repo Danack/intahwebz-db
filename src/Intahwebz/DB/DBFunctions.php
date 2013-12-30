@@ -12,7 +12,7 @@ class DBFunctions {
 namespace {
 
 use Intahwebz\DB;
-use Intahwebz\DB\DBConnection;
+use Intahwebz\DB\Connection;
 use Intahwebz\Exception\UnsupportedOperationException;
 
 /* Generates a query snippet.
@@ -48,7 +48,7 @@ function getNowMySQLTime(){
 }
 
 
-function getDayNumberForTimezone(DBConnection $dbConnection, $timezone){
+function getDayNumberForTimezone(Connection $dbConnection, $timezone){
 
     $offsetTime = getOffsetTime($timezone);
 
@@ -56,7 +56,7 @@ function getDayNumberForTimezone(DBConnection $dbConnection, $timezone){
 }
 
 
-function getDayNumberWithOffset(DBConnection $dbConnection, $secondsOffset) {
+function getDayNumberWithOffset(Connection $dbConnection, $secondsOffset) {
 
     $queryString = "SELECT TO_DAYS(DATE_ADD( now(), INTERVAL ? SECOND ));";
 
@@ -77,7 +77,7 @@ function getDayNumberWithOffset(DBConnection $dbConnection, $secondsOffset) {
     return FALSE;
 }
 
-function getMysqlTimeWithOffset(DBConnection $dbConnection, $secondsOffset) {
+function getMysqlTimeWithOffset(Connection $dbConnection, $secondsOffset) {
 
     $queryString = "select date_add(now(), interval ? second) as datetime;;";
     $connectionWrapper = $dbConnection;
@@ -104,7 +104,7 @@ function getMysqlTimeWithOffset(DBConnection $dbConnection, $secondsOffset) {
  * are in the past.
  */
 
-function	getDaysAgoFromOffsetTime($offsetSeconds, DBConnection $dbConnection){
+function	getDaysAgoFromOffsetTime($offsetSeconds, Connection $dbConnection){
 
     $offsetSecondsInt = intval($offsetSeconds);
 
@@ -125,7 +125,7 @@ function	getDaysAgoFromOffsetTime($offsetSeconds, DBConnection $dbConnection){
 
 }
 
-function getDayWeek(DBConnection $dbConnection){
+function getDayWeek(Connection $dbConnection){
 
     $queryString = "select DAYOFWEEK(now()) as dayWeek;";
     $connectionWrapper = $dbConnection;
@@ -153,7 +153,7 @@ function getDayWeek(DBConnection $dbConnection){
     return 'sunday';
 }
 
-function getDayWeekforDatetime($datetime, DBConnection $dbConnection){
+function getDayWeekforDatetime($datetime, Connection $dbConnection){
 
     $queryString = "select DAYOFWEEK(?) as dayWeek;";
     $connectionWrapper = $dbConnection;
@@ -208,7 +208,7 @@ function getInString($array) {
     return $inString;
 }
 
-function getSQLStatus(DBConnection $dbConnection){
+function getSQLStatus(Connection $dbConnection){
 
     $connectionWrapper = $dbConnection;
 
@@ -240,7 +240,7 @@ function getSQLStatus(DBConnection $dbConnection){
 }
 
 
-function getInnoDBStatus(DBConnection $dbConnection){
+function getInnoDBStatus(Connection $dbConnection){
 
     $connectionWrapper = $dbConnection;
 
@@ -254,7 +254,7 @@ function getInnoDBStatus(DBConnection $dbConnection){
 }
 
 
-function	getDaysAgoStartAndEnd($dateStart, $dateEnd, DBConnection $dbConnection) {
+function	getDaysAgoStartAndEnd($dateStart, $dateEnd, Connection $dbConnection) {
 
     $connectionWrapper = $dbConnection;
 
@@ -286,7 +286,7 @@ function	getDaysAgoStartAndEnd($dateStart, $dateEnd, DBConnection $dbConnection)
 }
 
 
-function	findUnmappedCharacters(DB\DBConnection $dbConnection, $lastDate = FALSE){
+function	findUnmappedCharacters(DB\Connection $dbConnection, $lastDate = FALSE){
 
     $queryString = "select  outqueueID,
                             message,

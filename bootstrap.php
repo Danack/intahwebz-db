@@ -2,20 +2,13 @@
 
 use Intahwebz\DataPath;
 use Intahwebz\StoragePath;
-//use BaseReality\AutogenPath;
-//use BaseReality\CachePath;
-//use BaseReality\TemplatePath;
-//use BaseReality\FontPath;
-//use BaseReality\WebRootPath;
-//use BaseReality\ExternalLibPath;
-//use BaseReality\GeneratedSourcePath;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FingersCrossed\ErrorLevelActivationStrategy;
 
-
+use Intahwebz\Logger\NullLogger;
 use Auryn\Provider;
 
 define('SERVER_REPORT_EXTERNAL_SQL_EXECUTE', FALSE);
@@ -65,7 +58,8 @@ function createProvider($mocks = array(), $shares = array()) {
     $standardImplementations = [
         //'Intahwebz\Session' => Intahwebz\Session\MockSession::class,
         //'Intahwebz\Storage\Storage' => Intahwebz\Storage\S3Storage::class,
-        'Intahwebz\DB\DBConnection' => Intahwebz\DB\ProxiedConnectionWrapper::class,
+        'Intahwebz\DB\Connection' => Intahwebz\DB\ProxiedConnectionWrapper::class,
+        Intahwebz\DB\StatementFactory::class => Intahwebz\DB\MySQLiStatementFactory::class
         //'Intahwebz\Router' => Intahwebz\Routing\Router::class,
         //'Intahwebz\FileFetcher' => Intahwebz\Utils\UploadedFileFetcher::class,
         //'Intahwebz\Request' => Intahwebz\Routing\HTTPRequest::class,
@@ -73,16 +67,11 @@ function createProvider($mocks = array(), $shares = array()) {
         //'Intahwebz\Domain' => BaseReality\DomainWWW::class
     ];
 
-
     $standardLogger = createStandardLogger();
-//    $fullLogger = createFullInfoLogger("FullLogger");
 
     $provider = new Provider();
-    $provider->alias('Psr\Log\LoggerInterface', 'Monolog\Logger');
-    $provider->share($standardLogger); //Used by all classes
-//    $provider->share($fullLogger, array('Intahwebz\Router')); //used by Intahwebz\Router and it's constructor
+    $provider->alias('Psr\Log\LoggerInterface', Intahwebz\Logger\NullLogger::class);
 
-    //$errorPage = $provider->make('BaseReality\ErrorPage');
 
     $dbParams = array(
         ':host'     => MYSQL_SERVER,
@@ -92,27 +81,14 @@ function createProvider($mocks = array(), $shares = array()) {
         ':socket'   => MYSQL_SOCKET_CONNECTION
     );
 
-//    $provider->define(Intahwebz\Session\Session::class, [':sessionName' => 'basereality']);
-
     $provider->define(
-             \Intahwebz\DB\ConnectionWrapper::class,
+             \Intahwebz\DB\MySQLiConnection::class,
              $dbParams
     );
     $provider->define(
              \Intahwebz\DB\ProxiedConnectionWrapper::class,
              $dbParams
     );
-
-
-//        $provider->share(new StoragePath(PATH_TO_ROOT."var/"));
-//        $provider->share(new CachePath(PATH_TO_ROOT."var/cache"));
-//        $provider->share(new DataPath(PATH_TO_ROOT."data/"));
-//
-//        $provider->share(new TemplatePath(PATH_TO_ROOT.'templates/'));
-//        $provider->share(new FontPath(PATH_TO_ROOT.'fonts/'));
-//        $provider->share(new WebRootPath(PATH_TO_ROOT.'basereality/'));
-//        $provider->share(new ExternalLibPath(PATH_TO_ROOT.'lib/'));
-//        $provider->share(new GeneratedSourcePath(PATH_TO_ROOT."var/src"));
 
         $provider->alias('Intahwebz\ObjectCache', 'Intahwebz\Cache\APCObjectCache');
 
