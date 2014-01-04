@@ -3,6 +3,8 @@
 
 namespace Intahwebz\DB;
 
+use Psr\Log\LoggerInterface;
+
 
 class ClosureStatementFactory implements StatementFactory {
 
@@ -11,10 +13,10 @@ class ClosureStatementFactory implements StatementFactory {
     function __construct(callable $closure) {
         $this->closure = $closure;
     }
-    
-    function create($statement, $calledFromString) {
+
+    function create(\mysqli_stmt $statement, $queryString, LoggerInterface $logger) {
         $function = $this->closure;
-        $statementWrapper = $function($statement, $calledFromString);
+        $statementWrapper = $function($statement, $queryString, $logger);
         
         return $statementWrapper;
     }

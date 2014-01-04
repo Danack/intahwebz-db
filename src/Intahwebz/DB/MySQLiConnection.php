@@ -136,8 +136,7 @@ class MySQLiConnection implements Connection {
         }
 
         $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
-        $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString);
-        //$statementWrapper->setQueryString($queryString);
+        $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString, $this->logger);
 
         return $statementWrapper;
     }

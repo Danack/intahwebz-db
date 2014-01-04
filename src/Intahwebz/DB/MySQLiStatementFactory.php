@@ -17,7 +17,7 @@ class MySQLiStatementFactory implements StatementFactory {
     /**
      * @return MySQLiStatement
      */
-    function create($statement, $queryString) {
+    function create(\mysqli_stmt $statement, $queryString, LoggerInterface $logger) {
         $statementWrapper = new MySQLiStatement($statement, $queryString, $this->logger);
 
         return $statementWrapper;
