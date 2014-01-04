@@ -22,6 +22,15 @@
         }
     ],
     "functionCalls": [
+        {
+            "function": "\\mock",
+            "position": 0
+        },
+        {
+            "function": "\\mockObjects",
+            "position": 0
+        }
+        
     ]
 }
 

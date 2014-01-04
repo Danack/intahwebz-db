@@ -7,8 +7,6 @@ use Psr\Log\LoggerInterface;
 
 class MySQLiStatement implements Statement {
 
-    var $createLine;
-
     /** @var \mysqli_stmt */
     var $statement;
     
@@ -23,16 +21,21 @@ class MySQLiStatement implements Statement {
 
     var $boundParameters;
 
-    function __construct(\mysqli_stmt $statement, $createLine, LoggerInterface $logger) {
-        $this->createLine = $createLine;
+    function __construct(\mysqli_stmt $statement, $queryString, LoggerInterface $logger) {
+        $this->queryString = $queryString;
         $this->statement = $statement;
         $this->open = true;
         $this->logger = $logger;
     }
 
+
+    function getQueryString() {
+        return $this->queryString;
+    }
+
     function __destruct() {
         if ($this->open == true) {
-            $this->logger->warning("Forgot to close statement ".$this->createLine);
+            $this->logger->warning("Forgot to close statement ".$this->queryString);
         }
     }
     
@@ -43,10 +46,6 @@ class MySQLiStatement implements Statement {
      */
     function fetch() {
         return $this->statement->fetch();
-    }
-
-    function setQueryString($queryString) {
-        $this->queryString = $queryString;
     }
 
     /**
@@ -195,7 +194,7 @@ class MySQLiStatement implements Statement {
 
             if($result === false){
 
-                $errorString = "Error executing ".$this->statement->error.",  errno is ".$this->statement->errno.". Query from ".$this->createLine." retries = $retries<br/>\r\n";
+                $errorString = "Error executing ".$this->statement->error.",  errno is ".$this->statement->errno.". Query from ".$this->queryString." retries = $retries<br/>\r\n";
 
                 if($this->statement->errno == 1205){//  ER_LOCK_WAIT_TIMEOUT
                     //$this->dumpInnoDBStatus($errorString, $this->statement->errno);

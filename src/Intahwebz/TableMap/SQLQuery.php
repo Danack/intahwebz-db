@@ -513,7 +513,7 @@ done:
 //        }
 
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
-
+        
         if(count($this->params) > 0){
             $bindParams = array();
             $bindParams[] = $this->paramsTypes;

@@ -41,7 +41,7 @@ class MySQLiConnection implements Connection {
 
         $this->logger = $logger;
         $this->statementWrapperFactory = $statementWrapperFactory;
-        
+
         $finished = false;
 
         while ($finished == false) {
@@ -134,13 +134,12 @@ class MySQLiConnection implements Connection {
 
             throw new DBException($errorString . 'Called from ' . $calledFromString);
         }
-        else {
-            $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
-            $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString);
-            $statementWrapper->setQueryString($queryString);
 
-            return $statementWrapper;
-        }
+        $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
+        $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString);
+        //$statementWrapper->setQueryString($queryString);
+
+        return $statementWrapper;
     }
 
     function prepareAndExecute($queryString, $log = false) {

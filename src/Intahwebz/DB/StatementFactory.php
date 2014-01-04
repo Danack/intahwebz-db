@@ -9,5 +9,5 @@ interface StatementFactory {
     /**
      * @return Statement
      */
-    function create($statement, $calledFromString);
+    function create($statement, $queryString);
 } 

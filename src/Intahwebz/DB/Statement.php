@@ -14,8 +14,6 @@ interface Statement {
      */
     public function fetch();
 
-    function setQueryString($queryString);
-
     /**
      * @param $parameterArray Array of ($type, $reference)
      */
@@ -45,9 +43,9 @@ interface Statement {
 
     function close();
 
+    function getQueryString();
+    
     function getInsertID();
-
-    //static function finalise();
 
     function sendBigString($paramID, $largeString);
 
