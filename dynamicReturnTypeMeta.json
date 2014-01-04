@@ -1,18 +1,8 @@
 {
     "methodCalls": [
         {
-            "class": "\\Intahwebz\\TestClass",
-            "method": "make",
-            "position": 0
-        },
-        {
-            "class": "\\Auryn\\Provider",
-            "method": "make",
-            "position": 0
-        },
-        {
-            "class": "\\Intahwebz\\TestClassVendors",
-            "method": "make",
+            "class": "\\Intahwebz\\TableMap\\AbstractQuery",
+            "method": "fetch",
             "position": 0
         },
         {
@@ -21,19 +11,17 @@
             "position": 0
         },
         {
-            "class": "\\Intahwebz\\Maker",
-            "method": "make",
+            "class": "\\Intahwebz\\TableMap\\SQLQuery",
+            "method": "getAncestors",
+            "position": 0
+        },
+        {
+            "class": "\\Intahwebz\\TableMap\\SQLQuery",
+            "method": "getDescendants",
             "position": 0
         }
     ],
     "functionCalls": [
-        {
-            "function": "\\verify",
-            "position": 0
-        },
-        {
-            "function": "\\shamoan",
-            "position": 0
-        }
     ]
 }
+
