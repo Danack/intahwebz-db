@@ -11,8 +11,6 @@ use Monolog\Handler\FingersCrossed\ErrorLevelActivationStrategy;
 use Intahwebz\Logger\NullLogger;
 use Auryn\Provider;
 
-define('SERVER_REPORT_EXTERNAL_SQL_EXECUTE', FALSE);
-
 error_reporting(E_ALL);
 
 require_once('../config.php');
