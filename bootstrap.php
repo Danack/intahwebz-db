@@ -15,10 +15,9 @@ error_reporting(E_ALL);
 
 require_once('../config.php');
 
-define('PATH_TO_ROOT', './');
+//define('PATH_TO_ROOT', './');
 
 require_once('./vendor/autoload.php');
-
 
 function createStandardLogger($logChannelName = 'logchannelname') {
     $logger = new Logger($logChannelName);
@@ -27,7 +26,7 @@ function createStandardLogger($logChannelName = 'logchannelname') {
     $standardFormat = "[%datetime%] $pid %channel%.%level_name%: %message% %context% %extra%\n";
     $formatter = new \Monolog\Formatter\LineFormatter($standardFormat);
 
-    $streamInfoHandler = new StreamHandler(PATH_TO_ROOT.'var/log/mono.log', Logger::INFO);
+    $streamInfoHandler = new StreamHandler('./var/log/mono.log', Logger::INFO);
     $streamInfoHandler->setFormatter($formatter);
     //wrap the stream handler with a fingersCrossedHandler.
     $fingersCrossedHandler = new FingersCrossedHandler(
