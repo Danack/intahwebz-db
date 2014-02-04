@@ -168,7 +168,9 @@ class YAMLQuery extends AbstractQuery{
 //    }
 
 
-
+    function fetchObjects() {
+        throw new \Exception("Not implemented yet.");
+    }
 
 }
 

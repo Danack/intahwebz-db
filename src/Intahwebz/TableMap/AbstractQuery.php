@@ -37,6 +37,10 @@ abstract class AbstractQuery {
     //This binds the result
     var	$columnsArray = array();
 
+
+    /** @var array */
+    protected $outputClass = array();
+    
     /**
      * @param TableMap $tableMap
      * @param \Intahwebz\TableMap\QueriedTable $joinTableMap
@@ -50,6 +54,19 @@ abstract class AbstractQuery {
         return $newFragment->tableMap;
     }
 
+    function tableObject(TableMap $tableMap, QueriedTable $joinTableMap = null) {
+
+        $this->addOutputClass($tableMap->getDTONamespace(), $tableMap->getDTOClassname());
+        
+        
+        
+        $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
+        $this->sqlFragments[] = $newFragment;
+
+        return $newFragment->tableMap;
+    }
+    
+    
     /**
      * @param TableMap $tableMap
      * @param QueriedTable $joinTableMap
@@ -281,6 +298,14 @@ abstract class AbstractQuery {
     abstract function count();
     abstract function delete();
     abstract function fetch();
+
+    abstract function fetchObjects();
+
+
+    function addOutputClass($objectNamespace, $objectClassname) {
+        $this->outputClass[] = $objectNamespace.'\\'.$objectClassname;
+    }
+    
 
 }
 

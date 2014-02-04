@@ -221,6 +221,28 @@ done:
 
         throw new \Exception("multiple rows found, when only one expected.");
     }
+
+
+    function fetchObjects() {
+//        var_dump($this->outputClass);
+//        exit(0);
+
+        $contentArray = $this->fetch();
+
+        //todo - this should just return an empty array
+        if (count($contentArray) == false) {
+            return null;
+        }
+
+        $return = array();
+        
+        if (count($this->outputClass) == 0) {
+            return castArraysToObjects(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray);
+        }
+        
+        throw new \Exception("Not implemented yet.");
+        
+    }
     
     function fetch($doACount = false, $doADelete = false){
         $this->reset();
