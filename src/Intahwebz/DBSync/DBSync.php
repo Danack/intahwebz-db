@@ -69,6 +69,9 @@ class DBSync{
         $this->dbConnection = $dbConnection;
     }
 
+    /**
+     * @param $sqlOperationsForVersion
+     */
     function addOperations($sqlOperationsForVersion) {
         foreach ($sqlOperationsForVersion as $sqlOperations) {
             foreach ($sqlOperations as $sqlOperation){
@@ -80,6 +83,10 @@ class DBSync{
         }
     }
 
+    /**
+     * @param Connection $connection
+     * @param $schemaName
+     */
     function createSchema(Connection $connection, $schemaName) {
         $queryString = "CREATE SCHEMA IF NOT EXISTS $schemaName
     DEFAULT CHARACTER SET = ".UTF8_CHARSET."
@@ -88,6 +95,11 @@ class DBSync{
         $connection->directExecute($queryString);
     }
 
+    /**
+     * @param Connection $connection
+     * @param $schemaName
+     * @return bool
+     */
     public static function checkSchemaExists(Connection $connection, $schemaName) {
         $result = false;
         $queryString = "show schemas where `Database` = '$schemaName';";
@@ -103,6 +115,11 @@ class DBSync{
         return $result;
     }
 
+    /**
+     * @param $schemaNameToGet
+     * @param $knownTables
+     * @return Schema
+     */
     function getSchemaFromDefinedTables($schemaNameToGet, $knownTables) {
         $schema = new Schema($schemaNameToGet);
         $schema->parseTables($knownTables);
@@ -137,9 +154,9 @@ class DBSync{
 
         usort($this->mySQLOperations, array($this, 'compareOperations'));
 
-        //foreach ($this->mySQLOperations as $mySQLOperation) {
-        //	echo  $mySQLOperation->operationType." ".$mySQLOperation->comment."\n";
-        //}
+//        foreach ($this->mySQLOperations as $mySQLOperation) {
+//        	echo  $mySQLOperation->operationType." ".$mySQLOperation->comment."\n";
+//        }
 
         $connectionWrapper = $this->dbConnection;
 
@@ -163,6 +180,10 @@ class DBSync{
         $connection->directExecute("SET FOREIGN_KEY_CHECKS=1");
     }
 
+    /**
+     * @param $schemaName
+     * @param array $tablesToUpgrade
+     */
     function processUpgradeForSchema($schemaName, array $tablesToUpgrade) {
         $newSchema = $this->getSchemaFromDefinedTables($schemaName, $tablesToUpgrade);
 

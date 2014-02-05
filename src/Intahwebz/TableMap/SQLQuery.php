@@ -236,7 +236,8 @@ done:
         $return = array();
         
         if (count($this->outputClass) == 0) {
-            return castArraysToObjects(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray);
+            //TODO - this is hard coded
+            return castArraysToObjects('\Intahwebz\TableMap\Tests\DTO\MockNoteDTO', $contentArray);
         }
         
         throw new \Exception("Not implemented yet.");

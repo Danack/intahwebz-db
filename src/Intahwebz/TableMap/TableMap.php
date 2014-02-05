@@ -217,10 +217,10 @@ abstract class TableMap {
         $queryType = '\UnknownQueryType';
 
         if ($this instanceof \Intahwebz\TableMap\SQLTableMap) {
-            $queryType  = '\\'.\Intahwebz\TableMap\SQLQuery::class;
+            $queryType  = '\\Intahwebz\TableMap\SQLQuery';
         }
         else if ($this instanceof \Intahwebz\TableMap\YAMLTableMap) {
-            $queryType  = '\\'.\Intahwebz\TableMap\YAMLQuery::class;
+            $queryType  = '\\Intahwebz\TableMap\YAMLQuery';
         }
 
         $fullClassName = '\\'.get_class($this);
@@ -257,7 +257,7 @@ abstract class TableMap {
         $output .= $this->getClassString();
         $output .= "\n";
 
-        $filename = $directory.$this->getDTOClassName().'.php';
+        $filename = $directory.'/'.$this->getDTOClassName().'.php';
 
         ensureDirectoryExists($filename);
 
