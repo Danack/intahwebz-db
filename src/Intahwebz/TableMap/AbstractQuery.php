@@ -20,7 +20,7 @@ abstract class AbstractQuery {
     /** @var int Number of aliases used so we can throw an exception if we run out. */
     protected $aliasCount = 0;
 
-    var     $queryString = "select ";
+    //private $queryString;
 
     /**
      * @var array
@@ -209,6 +209,7 @@ abstract class AbstractQuery {
     /**
      * Adds an offset fragment to a query.
      * @param $offset
+     * @throws \RuntimeException
      */
     function offset($offset) {
 

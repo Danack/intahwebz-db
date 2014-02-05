@@ -250,14 +250,14 @@ abstract class TableMap {
     }
 
 
-    function generateObjectFile($directory, $extension, $namespace) {
+    function generateObjectFile($directory, $namespace) {
 
         $output = "<?php\n\n";
         $output .= "namespace $namespace;\n\n";
         $output .= $this->getClassString();
         $output .= "\n";
 
-        $filename = $directory.$this->getDTOClassName().'.php';//$extension;
+        $filename = $directory.$this->getDTOClassName().'.php';
 
         ensureDirectoryExists($filename);
 

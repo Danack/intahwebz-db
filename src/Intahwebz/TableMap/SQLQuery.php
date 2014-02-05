@@ -5,15 +5,14 @@ namespace Intahwebz\TableMap;
 use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
-//use PasswordHash\PasswordHash;
-use Intahwebz\DB\DataNotSetException;
+//use Intahwebz\DB\DataNotSetException;
 
 use Intahwebz\Exception\UnsupportedOperationException;
 
 
 class SQLQuery extends AbstractQuery{
 
-    use \Intahwebz\SafeAccess;
+//    use \Intahwebz\SafeAccess;
 
     var $commaString = "";
 
@@ -21,6 +20,8 @@ class SQLQuery extends AbstractQuery{
      * @var Connection
      */
     var $dbConnection;
+
+    protected $queryString;
 
     static $showSQL = false;
     static $showSQLAndExit = false;

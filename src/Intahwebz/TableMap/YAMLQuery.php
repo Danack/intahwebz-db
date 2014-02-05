@@ -4,8 +4,10 @@
 namespace Intahwebz\TableMap;
 
 
-class YAMLQuery extends AbstractQuery{
+class YAMLQuery extends AbstractQuery {
 
+    //protected $queryString;
+    
     /**
      * @param TableMap $tableMap
      * @internal param $tableName

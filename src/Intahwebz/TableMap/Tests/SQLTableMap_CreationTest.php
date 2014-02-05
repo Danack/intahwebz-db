@@ -47,7 +47,6 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
             $knownTable->generateObjectFile(
                 realpath(__DIR__)."/DTO/",
-                "DTO.php",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );
         }

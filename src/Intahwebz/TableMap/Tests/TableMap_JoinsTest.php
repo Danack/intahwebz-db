@@ -48,7 +48,6 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         foreach ($tablesToUprade as $tableToUprade) {
             $tableToUprade->generateObjectFile(
                 realpath(__DIR__)."/DTO/",
-                "DTO.php",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );
         }
