@@ -5,21 +5,19 @@ namespace Intahwebz\TableMap;
 use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
-//use Intahwebz\DB\DataNotSetException;
 
 use Intahwebz\Exception\UnsupportedOperationException;
 
+class SQLQuery extends AbstractQuery {
 
-class SQLQuery extends AbstractQuery{
-
-//    use \Intahwebz\SafeAccess;
+    use \Intahwebz\SafeAccess;
 
     var $commaString = "";
 
     /**
      * @var Connection
      */
-    var $dbConnection;
+    protected $dbConnection;
 
     protected $queryString;
 
@@ -386,26 +384,6 @@ done:
                 
             }
 
-
-            if($sqlFragment instanceof SQLSearchFragment){
-                /** @var  $sqlFragment SQLSearchFragment */
-                $tableMap = $sqlFragment->tableMap;
-                $searchTable = $sqlFragment->searchTableMap;
-
-                $sqlFragment->column;
-                $sqlFragment->searchTerm;
-
-                //TODO - do I mean left or inner? Probably inner
-                $this->addSQL(" left join ");
-                $this->addSQL(" ".$searchTable->getSchema().".".$searchTable->getTableName()." as ".$searchTable->getAlias()." ");
-
-                $aliasedPrimaryColumn = $tableMap->getAliasedPrimaryColumn();
-                $primaryColumn = $tableMap->getPrimaryColumn();
-
-                $this->addSQL(" on ".$aliasedPrimaryColumn);
-                $this->addSQL(" = ".$searchTable->getAlias().'.'.$primaryColumn.' ');
-            }
-
             $previousTableMap = $tableMap;
         }
 
@@ -441,19 +419,6 @@ done:
                 $whereString = '';
                 $andString = ' and';
                 $this->bindParams($sqlFragment);
-            }
-
-            if($sqlFragment instanceof SQLSearchFragment){
-                /** @var  $sqlFragment SQLSearchFragment */
-                $searchTable = $sqlFragment->searchTableMap;
-                $searchColumn = $sqlFragment->column;
-                $searchTerm = $sqlFragment->searchTerm;
-
-                $this->addSQL($whereString.$andString);
-                $this->addSQL(' '.$searchTable->getAlias().'.'.$searchColumn.' like "'.$searchTerm.'" ');
-
-                $whereString = '';
-                $andString = ' and';
             }
         }
 
@@ -847,7 +812,12 @@ done:
         return $blahblah;
     }
 
-
+    /**
+     * @param TableMap $tableMap
+     * @param $nodeID
+     * @param null $maxRelativeDepth
+     * @return array
+     */
     function getDescendants(TableMap $tableMap, $nodeID, $maxRelativeDepth = null) {
         $this->reset();
 
@@ -875,10 +845,7 @@ done:
             $statementWrapper->bindParam('i', $nodeID);
         }
 
-
-
-
-        
+        //TODO - this is embarrasing.
         $blah = [];
         $blahblah = [];
 

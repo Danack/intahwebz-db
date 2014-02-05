@@ -209,7 +209,7 @@ class MySQLiStatement implements Statement {
                     $retries--; //has been slept.
                 }
                 else if($this->statement->errno == 1062){
-                    throw new DBException("MySQL error 1062: Duplicate row detected:".getVar_DumpOutput($this). " Query was [".$this->queryString."]");
+                    throw new DBException("MySQL error 1062: Duplicate row detected:".var_export($this, true). " Query was [".$this->queryString."]");
                 }
                 else{
                     throw new DBException($errorString);

@@ -68,6 +68,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $this->assertGreaterThan(0, $insertID, "Insert failed?");
 
         $insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
+        $this->assertNotNull($insertID, "Insert is null");
     }
 
 
@@ -265,7 +266,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     function testSelfJoin() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $aliasedTable = $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
 
         $sqlQuery->table($table);
         $sqlQuery->fetch();

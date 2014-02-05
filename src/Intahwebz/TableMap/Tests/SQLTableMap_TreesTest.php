@@ -104,8 +104,8 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(1, $stuff2);
         
         $beforeDelete = $sqlQuery->getDescendants($table, 2);
-        
         $sqlQuery->deleteDescendants($table, 2);
+        
         $afterDelete = $sqlQuery->getDescendants($table, 2);
         
         $this->assertEquals(2, count($beforeDelete) - count($afterDelete), "Failied to remove 2 + 3. ");

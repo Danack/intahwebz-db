@@ -35,11 +35,24 @@ abstract class AbstractQuery {
     var  $data = array();
 
     //This binds the result
-    var	$columnsArray = array();
+    var $columnsArray = array();
 
 
     /** @var array */
     protected $outputClass = array();
+
+    /**
+     * @param TableMap $tableMap
+     * @internal param $alias
+     * @return QueriedTable
+     */
+    abstract function aliasTableMap(TableMap $tableMap);
+
+    abstract function count();
+    abstract function delete();
+    abstract function fetch();
+
+    abstract function fetchObjects();
     
     /**
      * @param TableMap $tableMap
@@ -54,12 +67,13 @@ abstract class AbstractQuery {
         return $newFragment->tableMap;
     }
 
+    /**
+     * @param TableMap $tableMap
+     * @param QueriedTable $joinTableMap
+     * @return QueriedTable
+     */
     function tableObject(TableMap $tableMap, QueriedTable $joinTableMap = null) {
-
         $this->addOutputClass($tableMap->getDTONamespace(), $tableMap->getDTOClassname());
-        
-        
-        
         $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
         $this->sqlFragments[] = $newFragment;
 
@@ -80,6 +94,10 @@ abstract class AbstractQuery {
     }
 
 
+    /**
+     * @param QueriedTable $tableMap
+     * @param $column
+     */
     public function select(QueriedTable $tableMap, $column){
         $newFragment = new SQLSelectColumnFragment($tableMap, $column);
         $this->sqlFragments[] = $newFragment;
@@ -87,12 +105,8 @@ abstract class AbstractQuery {
 
     /**
      * @param TableMap $tableMap
-     * @internal param $alias
-     * @return QueriedTable
+     * @return mixed
      */
-    abstract function aliasTableMap(TableMap $tableMap);
-
-
     function getAliasForTable(TableMap $tableMap) {
         if(in_array($tableMap->tableName, $this->tableNamesUsed) == FALSE){
             $this->tableNamesUsed[] = $tableMap->tableName;
@@ -110,53 +124,6 @@ abstract class AbstractQuery {
 
         return $alias;
     }
-
-//    /**
-//     * @param TableMap $tableMap
-//     * @return QueriedSQLTable
-//     * @throws \Exception
-//     */
-//    function aliasTableMap(TableMap $tableMap) {
-//
-//        if(in_array($tableMap->tableName, $this->tableNamesUsed) == FALSE){
-//            $this->tableNamesUsed[] = $tableMap->tableName;
-//
-//            return $this->aliasTableFromQuery($tableMap, $tableMap->tableName);
-//
-////            if ($tableMap instanceof YAMLTableMap) {
-////                return new QueriedYAMLTable($tableMap, $tableMap->tableName, $this);
-////            }
-////            else if ($tableMap instanceof SQLTableMap) {
-////                return new QueriedSQLTable($tableMap, $tableMap->tableName, $this);
-////            }
-////            else {
-////                throw new \RuntimeException("Unknown table type ".get_class($tableMap));
-////            }
-//        }
-//
-//        $tableAliases = array( 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  );
-//
-//        if($this->aliasCount >= 0 && $this->aliasCount < count($tableAliases)){
-//            $this->aliasCount++;
-//
-//            //return new QueriedSQLTable($tableMap, $tableAliases[$this->aliasCount], $this);
-//
-//            return $this->aliasTableFromQuery($tableMap, $tableAliases[$this->aliasCount]);
-//
-////            if ($tableMap instanceof YAMLTableMap) {
-////                return new QueriedYAMLTable($tableMap, $tableAliases[$this->aliasCount], $this);
-////            }
-////            else if ($tableMap instanceof SQLTableMap) {
-////                return new QueriedSQLTable($tableMap, $tableAliases[$this->aliasCount], $this);
-////            }
-////            else {
-////                throw new \RuntimeException("Unknown table type ".get_class($tableMap));
-////            }
-//        }
-//
-//        throw new \Exception("Out of aliases");
-//    }
-
 
     /**
      * Adds a WHERE fragment to a query.
@@ -189,10 +156,19 @@ abstract class AbstractQuery {
         return $table->getAlias()."_".$column."_count";
     }
 
+    /**
+     * @param $tableMap
+     * @param $column
+     * @param string $orderValue
+     */
     function order($tableMap, $column, $orderValue = 'ASC') {
         $this->sqlFragments[] = new SQLOrderFragment($column, $tableMap, $orderValue);
     }
 
+    /**
+     * @param QueriedTable $table
+     * @param QueriedTable $table2
+     */
     function rand(QueriedTable $table, QueriedTable $table2) {
         $this->sqlFragments[] = new SQLRandOrderFragment($table, $table2);
     }
@@ -256,53 +232,20 @@ abstract class AbstractQuery {
         return $queriedTable;
     }
 
-//    //This is doing a join and search in one...
-//    function searchAlready(QueriedTable $firstTable, TableMap $secondTable, $column, $searchTerm) {
-//
-//        //TODO - why isn't this cloning the table map?
-//        $queriedSecondTable = $this->aliasTableMap($secondTable);
-//
-//        $newFragment = new SQLSearchFragment(
-//            $firstTable,
-//            $queriedSecondTable,
-//            $column,
-//            $searchTerm
-//        );
-//
-//        $this->sqlFragments[] = $newFragment;
-//
-//        return $queriedSecondTable;
-//    }
-
-//    //TODO - this isn't used?
-//    function search(
-//        QueriedTable $firstTable,
-//        QueriedTable $secondTable,
-//        $column,
-//        $searchTerm) {
-//
-//        $newFragment = new SQLSearchFragment(
-//            $firstTable,
-//            $secondTable,
-//            $column,
-//            $searchTerm
-//        );
-//
-//        $this->sqlFragments[] = $newFragment;
-//    }
-
+    /**
+     * @param $name
+     * @param $value
+     */
     function setValue($name, $value){
         $newFragment = new SQLValueFragment($name, $value);
         $this->sqlFragments[] = $newFragment;
     }
 
-    abstract function count();
-    abstract function delete();
-    abstract function fetch();
 
-    abstract function fetchObjects();
-
-
+    /**
+     * @param $objectNamespace
+     * @param $objectClassname
+     */
     function addOutputClass($objectNamespace, $objectClassname) {
         $this->outputClass[] = $objectNamespace.'\\'.$objectClassname;
     }
