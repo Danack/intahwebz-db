@@ -6,7 +6,6 @@ namespace Intahwebz\TableMap;
 
 class QueriedSQLTable extends QueriedTable {
 
-
     /**
      * @var SQLTableMap
      */

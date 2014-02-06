@@ -9,7 +9,7 @@ abstract class TableMap {
 
     use SafeAccess;
 
-    var $schema = 'basereality';
+    var $schema;
     var $tableName;
     var $columns;
 
@@ -74,6 +74,14 @@ abstract class TableMap {
         $this->tableName = $tableDefinition['tableName'];
 
         $this->columns = $tableDefinition['columns'];
+
+
+        if (array_key_exists('schema', $tableDefinition) == false) {
+            throw new \UnexpectedValueException("Cannot initialise table without schema defined");
+        }
+
+        $this->schema = $tableDefinition['schema'];
+        
 
         if (array_key_exists('indexColumns', $tableDefinition) == true) {
             $this->indexColumns = $tableDefinition['indexColumns'];

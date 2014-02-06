@@ -14,13 +14,10 @@ abstract class AbstractQuery {
      * @var array List of the names of the table names or aliases already used, so that if a table
      * is used multiple times in a query, the subsequent uses will use different alias.
      */
-
     protected $tableNamesUsed = array();
 
     /** @var int Number of aliases used so we can throw an exception if we run out. */
     protected $aliasCount = 0;
-
-    //private $queryString;
 
     /**
      * @var array

@@ -36,6 +36,11 @@ class SQLQuery extends AbstractQuery {
     function aliasTableMap(TableMap $tableMap) {
         /** @var $tableAlias SQLTableMap */
         $tableAlias = $this->getAliasForTable($tableMap);
+        
+        if (!($tableMap instanceof SQLTableMap)) {
+            throw new \InvalidArgumentException("\$tableMap must be of type SQLTableMap");
+        }
+        
         return new QueriedSQLTable($tableMap, $tableAlias, $this);
     }
 
@@ -50,17 +55,19 @@ class SQLQuery extends AbstractQuery {
         }
     }
 
+    /**
+     * @param QueriedTable $tableMap
+     * @param $column
+     */
     private function addColumn(QueriedTable $tableMap, $column) {
         $this->addColumnFromTableAlias($tableMap->getAlias(), $column);
-//        $this->queryString .= $this->commaString;
-//        $tableAlias = $tableMap->getAlias();
-//        $this->queryString .= " ".$tableAlias.".".$column;
-//        $this->commaString = ', ';
-//        $resultName = $tableAlias.'.'.$column;
-//        $this->columnsArray[] = &$this->data[$resultName];
     }
 
 
+    /**
+     * @param $tableAlias
+     * @param $column
+     */
     private function addColumnFromTableAlias($tableAlias, $column) {
         $this->queryString .= $this->commaString;
         $this->queryString .= " ".$tableAlias.".".$column;
@@ -69,6 +76,10 @@ class SQLQuery extends AbstractQuery {
         $this->columnsArray[] = &$this->data[$resultName];
     }
 
+    /**
+     * Reset the query to allow it to be used for afresh.
+     * @TODO - this is a bad design. People should just be using a new query object.
+     */
     private function reset() {
         $this->queryString = "select ";
         $this->commaString = "";
@@ -82,6 +93,9 @@ class SQLQuery extends AbstractQuery {
         $this->aliasCount = 0;
     }
 
+    /**
+     * @param $string
+     */
     private function addSQL($string) {
         $this->queryString .= " ";
         $this->queryString .= $string;
@@ -89,10 +103,17 @@ class SQLQuery extends AbstractQuery {
         $this->queryString .= "\n";
     }
 
+    /**
+     * 
+     */
     function delete() {
         $this->fetch(false, true);
     }
 
+    /**
+     * @param SQLWhereFragment $sqlFragment
+     * @throws \Exception
+     */
     private function bindParams(SQLWhereFragment $sqlFragment) {
         if($sqlFragment->value !== NULL){
 
@@ -114,6 +135,11 @@ class SQLQuery extends AbstractQuery {
         }
     }
 
+    /**
+     * @param QueriedTable $tableMap
+     * @param QueriedTable $joinTableMap
+     * @return bool|null
+     */
     function getJoinColumn(QueriedTable $tableMap, QueriedTable $joinTableMap) {
 
         //Try and join on the primary column of the previous table
@@ -135,10 +161,16 @@ class SQLQuery extends AbstractQuery {
         return null;
     }
 
+    /**
+     * @return mixed
+     */
     function count() {
         return $this->fetch(true);
     }
 
+    /**
+     * @throws \Exception
+     */
     function addRelatedTables() {
 
         //email then user
@@ -208,6 +240,11 @@ done:
     }
 
 
+    /**
+     * @param $className
+     * @return array|null
+     * @throws \Exception
+     */
     function fetchSingle($className) {
         $results = $this->fetch();
         
@@ -221,10 +258,11 @@ done:
         throw new \Exception("multiple rows found, when only one expected.");
     }
 
-
+    /**
+     * @return array|null
+     * @throws \Exception
+     */
     function fetchObjects() {
-//        var_dump($this->outputClass);
-//        exit(0);
 
         $contentArray = $this->fetch();
 
@@ -242,7 +280,14 @@ done:
         throw new \Exception("Not implemented yet.");
         
     }
-    
+
+    /**
+     * @param bool $doACount
+     * @param bool $doADelete
+     * @return array|int|null
+     * @throws \Intahwebz\DB\DBException
+     * @throws \Exception
+     */
     function fetch($doACount = false, $doADelete = false){
         $this->reset();
         $whereString = ' where ';
@@ -471,13 +516,11 @@ done:
 
         $this->queryString .= ';';
 
-//        if(self::$showSQL == TRUE){
-//            echo "Query is [<br/>";
-//            echo str_replace("\n", "<br/>\n", $this->queryString);
-//            echo "<br/>]\r\n";
-//        }
-
-		$GLOBALS['showSQLAndExit'] = TRUE;
+        if(self::$showSQL == TRUE){
+            echo "Query is [<br/>";
+            echo str_replace("\n", "<br/>\n", $this->queryString);
+            echo "<br/>]\r\n";
+        }
 
         if(self::$showSQLAndExit == true){
             echo "Query is [<br/>";
@@ -488,17 +531,6 @@ done:
             var_dump($this->params);
             exit(0);
         }
-
-//        $dumpSQL = false;
-////        if ($doADelete == true) {
-////            $dumpSQL = true;
-////        }
-//
-//        if($dumpSQL == TRUE){
-//            htmlvar_dump($this->queryString);
-//            var_dump($this->paramsTypes);
-//            exit(0);
-//        }
 
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
         
@@ -677,12 +709,20 @@ done:
         return $insertID;
     }
 
-
+    /**
+     * @param Connection $dbConnection
+     * @throws \Intahwebz\Exception\UnsupportedOperationException
+     */
     function deleteFromMappedTableCount(Connection $dbConnection) {
         unused($dbConnection);
         throw new UnsupportedOperationException("deleteFromMappedTableCount is not yet implemented.");
     }
 
+    /**
+     * @param TableMap $tableMap
+     * @param $params
+     * @throws \Exception
+     */
     function updateMappedTable(TableMap $tableMap, $params) {
 
         $typesString = "";
@@ -743,7 +783,11 @@ done:
         $connection->close();
     }
 
-
+    /**
+     * @param TableMap $tableMap
+     * @param $insertID
+     * @param $parentID
+     */
     function insertIntoTreePaths(TableMap $tableMap, $insertID, $parentID) {
 
         $treePathTablename = $tableMap->schema.'.'.$tableMap->tableName.'_TreePaths';
@@ -772,7 +816,13 @@ done:
         $statementWrapper->close();
     }
 
-    //Get ancestors of comment #6
+    
+    /**
+     * Get ancestors of comment #6
+     * @param TableMap $tableMap
+     * @param $nodeID
+     * @return array
+     */
     function getAncestors(TableMap $tableMap, $nodeID) {
         $this->reset();
 
@@ -884,7 +934,11 @@ done:
 
         return $blahblah;
     }
-    
+
+    /**
+     * @param TableMap $tableMap
+     * @param $nodeID
+     */
     function deleteNode(TableMap $tableMap, $nodeID) {
         $this->reset();
         $this->queryString = "";
@@ -899,6 +953,10 @@ done:
         $statementWrapper->close();
     }
 
+    /**
+     * @param TableMap $tableMap
+     * @param $nodeID
+     */
     function deleteDescendants(TableMap $tableMap, $nodeID) {
 
         $this->reset();
@@ -915,6 +973,5 @@ done:
         $statementWrapper->execute();
         $statementWrapper->close();
     }
-
 }
 
