@@ -9,6 +9,7 @@ use Intahwebz\DB\Connection;
 
 use Intahwebz\TableMap\SQLTableMap;
 use Intahwebz\TableMap\TableMap;
+use Intahwebz\TableMap\TableMapWriter;
 
 class Schema {
 
@@ -23,6 +24,11 @@ class Schema {
         $this->name = $name;
     }
 
+    /**
+     * @param $tableName
+     * @param DatabaseTable $table
+     * @throws \Exception
+     */
     function addTable($tableName, DatabaseTable $table){
         if (array_key_exists($tableName, $this->tables) == true) {
             throw new \Exception("Schema aleady contains table [$tableName] schemas cannot contain two tables with the same name.");
@@ -31,6 +37,10 @@ class Schema {
         $this->tables[$tableName] = $table;
     }
 
+    /**
+     * @param $tableNameToGet
+     * @return bool|DatabaseTable
+     */
     function getTable($tableNameToGet) {
         foreach($this->tables as $tableName => $table){
             if(mb_strcasecmp($tableNameToGet, $tableName) == 0){
@@ -41,6 +51,9 @@ class Schema {
         return FALSE;
     }
 
+    /**
+     * @param Connection $connection
+     */
     function initFromDatabase(Connection $connection) {
         $schemaExists = DBSync::checkSchemaExists($connection, $this->name);
 
@@ -55,6 +68,9 @@ class Schema {
     }
 
 
+    /**
+     * @param Connection $connection
+     */
     function initFromDatabaseExisting(Connection $connection) {
         $query = "SHOW TABLES FROM ".$this->name;
 
@@ -105,6 +121,10 @@ class Schema {
         return	$databaseOperations;
     }
 
+    /**
+     * @param Schema $newerSchema
+     * @return array
+     */
     function getRemovedTableOperations(Schema $newerSchema) {
         //This is in the older schema
         $databaseOperations = array();
@@ -166,6 +186,8 @@ class Schema {
     function createRelatedDatabaseTables(TableMap $tableMap) {
         $relationTables = array();
 
+        $tableMapWriter = new TableMapWriter();
+
         foreach ($tableMap->getRelatedTables() as $relatedTable) {
 
             $relatedTableMap = $relatedTable->getTableMap();
@@ -191,6 +213,13 @@ class Schema {
         return $relationTables;
     }
 
+    /**
+     * @param $directory
+     * @param $extension
+     * @param $namespace
+     * @param $className
+     * @param $definition
+     */
     function generateObjectFileForRelationTable($directory, $extension, $namespace, $className, $definition) {
 
         $output = "<?php\n\n";
@@ -225,7 +254,11 @@ class Schema {
     }
 
 
-
+    /**
+     * @param TableMap $tableMap
+     * @param TableMap $relatedTable
+     * @return array
+     */
     function generateRelationDatabaseTableDefinition(TableMap $tableMap, TableMap $relatedTable) {
 
         $primaryColumnForTable =  $tableMap->getPrimaryColumn();
@@ -249,7 +282,6 @@ class Schema {
             ),
         );
 
-//        var_dump($tableDefinition);
         return $tableDefinition;
     }
 

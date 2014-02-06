@@ -18,7 +18,7 @@ class EmailSQLTable extends SQLTableMap {
             ),
 
             'relatedTables' => [
-                ['one-to-many', \Intahwebz\TableMap\Tests\UserTable::class]
+                ['one-to-many', 'Intahwebz\TableMap\Tests\UserTable']
             ]
         );
 

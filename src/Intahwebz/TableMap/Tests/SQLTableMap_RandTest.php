@@ -1,7 +1,7 @@
 <?php
 
 use Intahwebz\TableMap\SQLQueryFactory;
-
+use Intahwebz\TableMap\TableMapWriter;
 
 function generateRandomString($length = 10) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

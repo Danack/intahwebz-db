@@ -917,5 +917,16 @@ done:
         $statementWrapper->close();
     }
 
+    function relate(SQLTableMap $bugTable, $relationName, $tableID, $foreignID) {
+        
+        $this->reset();
+        $relationTable = $bugTable->getRelationTable($relationName);
+        
+        //$this->table($relationTable);
+        //$relationTable->
+        
+        
+        
+    }
 }
 

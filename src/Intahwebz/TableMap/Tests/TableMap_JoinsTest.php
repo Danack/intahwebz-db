@@ -7,6 +7,8 @@ use Intahwebz\TableMap\SQLQueryFactory;
 use Intahwebz\TableMap\Tests\DTO\EmailSQLTableDTO;
 use Intahwebz\TableMap\Tests\DTO\UserTableDTO;
 
+use Intahwebz\TableMap\TableMapWriter;
+
 
 class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
 
@@ -33,8 +35,8 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         $dbSync->processUpgradeForSchema('mocks', []);
 
 
-        /** @var  $tablesToUprade \Intahwebz\TableMap\SQLTableMap[] */
-        $tablesToUprade = [
+        /** @var  $tablesToUpgrade \Intahwebz\TableMap\SQLTableMap[] */
+        $tablesToUpgrade = [
             new Intahwebz\TableMap\Tests\UserTable(),
             new Intahwebz\TableMap\Tests\EmailSQLTable(),
           //  new Intahwebz\TableMap\Tests\EmailUserJoinTable(),
@@ -42,11 +44,13 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
         $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
-        $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
+        $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
-
-        foreach ($tablesToUprade as $tableToUprade) {
-            $tableToUprade->generateObjectFile(
+        $tableMapWriter = new TableMapWriter();
+        
+        foreach ($tablesToUpgrade as $tableToUprade) {
+            $tableMapWriter->generateObjectFile(
+                $tableToUprade,
                 realpath(__DIR__)."/DTO/",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );

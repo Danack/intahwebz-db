@@ -1,6 +1,7 @@
 <?php
 
 use Intahwebz\TableMap\SQLQueryFactory;
+use Intahwebz\TableMap\TableMapWriter;
 
 class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
 
@@ -24,20 +25,21 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);
         $dbSync->processUpgradeForSchema('mocks', []);
 
-        $tablesToUprade = [
+        $tablesToUpgrade = [
             new Intahwebz\TableMap\Tests\MockCommentSQLTable(),
             new Intahwebz\TableMap\Tests\MockCommentTreePathSQLTable(),
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
         $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
-        $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
+        $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
 
-        
-        foreach($tablesToUprade as $knownTable){
+        $tableMapWriter = new TableMapWriter();
+        foreach($tablesToUpgrade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
-            $knownTable->generateObjectFile(
+            $tableMapWriter->generateObjectFile(
+                $knownTable,
                 realpath(__DIR__)."/DTO/",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );

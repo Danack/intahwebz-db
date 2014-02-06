@@ -1,6 +1,7 @@
 <?php
 
 use Intahwebz\TableMap\SQLQueryFactory;
+use Intahwebz\TableMap\TableMapWriter;
 
 class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
@@ -39,11 +40,12 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
+        $tableMapWriter = new TableMapWriter();
 
-        
         foreach($tablesToUpgrade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
-            $knownTable->generateObjectFile(
+            $tableMapWriter->generateObjectFile(
+                $knownTable,
                 realpath(__DIR__)."/DTO/",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );

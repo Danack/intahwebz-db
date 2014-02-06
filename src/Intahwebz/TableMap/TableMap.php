@@ -23,10 +23,20 @@ abstract class TableMap {
     //TODO - make a getter
     public $objectName = null;
 
+    /**
+     * @param $tableDefinition
+     */
+    private function __construct($tableDefinition) {
+        //Must be implemented in class
+    }
+
     function getObjectName() {
         return $this->objectName;
     }
 
+    /**
+     * @return string
+     */
     function getClassName() {
         $className = get_class($this);
 
@@ -39,21 +49,30 @@ abstract class TableMap {
         return $className;
     }
 
+    /**
+     * @return string
+     */
     function getDTONamespace() {
         return __NAMESPACE__."DTO";
     }
 
+    /**
+     * @return string
+     */
     function getDTOClassname() {
         return ucfirst($this->getTableName())."DTO";
     }
 
-    function __clone() {
-    }
-
+    /**
+     * @return bool
+     */
     function isTreeLike() {
         return false;
     }
 
+    /**
+     * @return mixed
+     */
     function getTableName() {
         return $this->tableName;
     }
@@ -65,10 +84,9 @@ abstract class TableMap {
         return $this->relatedTables;
     }
 
-    private function __construct($tableDefinition){
-        //Must be implemented in class
-    }
-
+    /**
+     * @param $tableDefinition
+     */
     function initTableDefinition($tableDefinition) {
 
         $this->tableName = $tableDefinition['tableName'];
@@ -89,18 +107,25 @@ abstract class TableMap {
         }
     }
 
+    /**
+     * @param $relatedTables
+     */
     function initRelatedTables($relatedTables) {
 
         foreach ($relatedTables as $relatedTableInfo) {
             $type = $relatedTableInfo[0];
             $relatedTableName = $relatedTableInfo[1];
 
+            $relationName = $relatedTableInfo[2];
             $relatedTable = new $relatedTableName();
 
-            $this->relatedTables[] = new RelatedTable($relatedTable, $type);
+            $this->relatedTables[] = new RelatedTable($relatedTable, $type, $relationName);
         }
     }
 
+    /**
+     * @param TableMap $relatedTable
+     */
     function addRelatedTable(TableMap $relatedTable) {
         $this->relatedTables[] = $relatedTable;
     }
@@ -157,6 +182,9 @@ abstract class TableMap {
     }
 
 
+    /**
+     * @return bool
+     */
     function getPrimaryColumn() {
         foreach($this->columns as $tableColumn){
             if(array_key_exists('primary', $tableColumn) == true){
@@ -169,103 +197,11 @@ abstract class TableMap {
         return false;
     }
 
-
-    
-    //TODO - this really ought to be elsewhere.
-    function getClassString() {
-
-        $output = "class ".$this->getDTOClassname()." {\n";
-        foreach($this->columns as $column){
-            $output .= "\tpublic \$".$column[0].";\n";
-        }
-
-        $output .= "\n";
-        $output .= "\tpublic function __construct(";
-        $separator = '';
-
-        $primaryColumnName = null;
-
-        foreach($this->columns as $column){
-            $output .= $separator.'$'.$column[0].' = null';
-            $separator = ', ';
-
-            if (array_key_exists('primary', $column) == true) {
-                if ($column['primary']) {
-                    $primaryColumnName = $column[0];
-                }
-            }
-        }
-
-        $output .= ") {\n";
-
-        foreach($this->columns as $column){
-            $output .= "\t\t\$this->".$column[0]." = \$".$column[0].";\n";
-        }
-        $output .= "\t} \n";
-
-        foreach($this->columns as $column){
-            $fieldName = $column[0];
-            $output .= "\tfunction ".$fieldName.'($'.$fieldName.") { \n";
-            $output .= "\t\t\$this->".$fieldName.' = $'.$fieldName.";\n";
-            $output .= "\t}\n\n";
-        }
-
-
-        //$lcTableName = mb_lcfirst($this->getClassName());
-        $lcTableName = mb_lcfirst($this->getDTOClassName());
-
-        $queryType = '\UnknownQueryType';
-
-        if ($this instanceof \Intahwebz\TableMap\SQLTableMap) {
-            $queryType  = '\\Intahwebz\TableMap\SQLQuery';
-        }
-        else if ($this instanceof \Intahwebz\TableMap\YAMLTableMap) {
-            $queryType  = '\\Intahwebz\TableMap\YAMLQuery';
-        }
-
-        $fullClassName = '\\'.get_class($this);
-
-        $output .= "
-
     /**
-     * @param \$query $queryType
-     * @param \$$lcTableName $fullClassName
-     * @return int
+     * 
      */
-    function insertInto($queryType \$query, $fullClassName \$".$lcTableName."){\n
-        \$data = convertObjectToArray(\$this);
-        \$insertID = \$query->insertIntoMappedTable(\$".$lcTableName.", \$data);\n";
-
-        if ($primaryColumnName) {
-            $output .= "\t\$this->$primaryColumnName = \$insertID;\n";
-        }
-
-        $output .= "
-        return \$insertID;
+    function getRelationTable($relationName) {
+        
     }
-";
-
-        $output .= "}\n\n";
-        return $output;
-    }
-
-
-    function generateObjectFile($directory, $namespace) {
-
-        $output = "<?php\n\n";
-        $output .= "namespace $namespace;\n\n";
-        $output .= $this->getClassString();
-        $output .= "\n";
-
-        $filename = $directory.'/'.$this->getDTOClassName().'.php';
-
-        ensureDirectoryExists($filename);
-
-        $fileHandle = fopen($filename, "w");
-        fwrite($fileHandle, $output);
-        fclose($fileHandle);
-
-    }
-
 
 }

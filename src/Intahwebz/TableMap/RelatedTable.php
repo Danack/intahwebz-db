@@ -7,14 +7,17 @@ class RelatedTable {
     private $tableMap;
 
     private $relationType;
+    
+    private $relationName;
 
-    function __construct(TableMap $tableMap, $relationType) {
+    function __construct(TableMap $tableMap, $relationType, $relationName) {
         $this->tableMap = $tableMap;
         $this->relationType = $relationType;
+        $this->relationName = $relationName;
     }
 
     function getRelationshipTable(TableMap $firstTable) {
-        $className = $firstTable->getTableName().$this->tableMap->getTableName()."Relation";
+        $className = $firstTable->getTableName().'X'.$this->tableMap->getTableName().'X'.$relationName."Relation";
         
         $namespace = getNamespace($firstTable);
         $namespaceClassName = $namespace."\\".$className;

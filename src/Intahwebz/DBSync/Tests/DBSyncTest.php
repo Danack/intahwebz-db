@@ -17,7 +17,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     protected function setUp(){
 
         $provider = createProvider([]);
-        $dbConnection = $provider->make(\Intahwebz\DB\Connection::class);
+        $dbConnection = $provider->make('\Intahwebz\DB\Connection');
 
         /**
          * @var $dbConnection \Intahwebz\DB\Connection

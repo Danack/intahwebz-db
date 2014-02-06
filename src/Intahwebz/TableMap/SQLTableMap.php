@@ -11,7 +11,5 @@ abstract class SQLTableMap extends TableMap {
     }
 
     abstract function getTableDefinition();
-
-
 }
 

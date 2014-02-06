@@ -1,5 +1,7 @@
 <?php
 
+use Intahwebz\TableMap\TableMapWriter;
+
 class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
 
     /**
@@ -15,7 +17,7 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
         $provider = createProvider($mocks);
 
         //This dumps all tables
-        $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('\Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
     }
 
@@ -43,9 +45,12 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
         $dbSync = $this->provider->make(Intahwebz\DBSync\DBSync::class);
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
 
+        $tableMapWriter = new TableMapWriter();
+
         foreach($tablesToUprade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
-            $knownTable->generateObjectFile(
+            $tableMapWriter->generateObjectFile(
+                $knownTable,
                 realpath(__DIR__)."/DTO/",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );
