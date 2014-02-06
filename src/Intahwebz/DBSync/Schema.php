@@ -204,7 +204,7 @@ class Schema {
             );
 
             //$tableMap->getClassName();
-            $namespace = getNamespace($tableMap);
+            $namespace = getNamespace(get_class($tableMap));
             $namespaceClassName = $namespace."\\".$className;
 
             $relationTables[] = new $namespaceClassName();
