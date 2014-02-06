@@ -3,17 +3,23 @@
 namespace Intahwebz\TableMap\Tests\DTO;
 
 class MockNoteDTO {
-	public $mockRandDataID;
+	public $mockNoteID;
+	public $mockContentID;
 	public $title;
 	public $text;
 
-	public function __construct($mockRandDataID = null, $title = null, $text = null) {
-		$this->mockRandDataID = $mockRandDataID;
+	public function __construct($mockNoteID = null, $mockContentID = null, $title = null, $text = null) {
+		$this->mockNoteID = $mockNoteID;
+		$this->mockContentID = $mockContentID;
 		$this->title = $title;
 		$this->text = $text;
 	} 
-	function mockRandDataID($mockRandDataID) { 
-		$this->mockRandDataID = $mockRandDataID;
+	function mockNoteID($mockNoteID) { 
+		$this->mockNoteID = $mockNoteID;
+	}
+
+	function mockContentID($mockContentID) { 
+		$this->mockContentID = $mockContentID;
 	}
 
 	function title($title) { 
@@ -28,14 +34,14 @@ class MockNoteDTO {
 
     /**
      * @param $query \Intahwebz\TableMap\SQLQuery
-     * @param $mockNote \Intahwebz\TableMap\Tests\MockRandDataSQLTable
+     * @param $mockNoteDTO \Intahwebz\TableMap\Tests\MockNoteSQLTable
      * @return int
      */
-    function insertInto(\Intahwebz\TableMap\SQLQuery $query, \Intahwebz\TableMap\Tests\MockRandDataSQLTable $mockNote){
+    function insertInto(\Intahwebz\TableMap\SQLQuery $query, \Intahwebz\TableMap\Tests\MockNoteSQLTable $mockNoteDTO){
 
         $data = convertObjectToArray($this);
-        $insertID = $query->insertIntoMappedTable($mockNote, $data);
-	$this->mockRandDataID = $insertID;
+        $insertID = $query->insertIntoMappedTable($mockNoteDTO, $data);
+	$this->mockNoteID = $insertID;
 
         return $insertID;
     }

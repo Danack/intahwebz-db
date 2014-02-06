@@ -15,6 +15,9 @@ class MySQLiStatementFactory implements StatementFactory {
     }
 
     /**
+     * @param \mysqli_stmt $statement
+     * @param $queryString
+     * @param \Psr\Log\LoggerInterface $logger
      * @return MySQLiStatement
      */
     function create(\mysqli_stmt $statement, $queryString, LoggerInterface $logger) {

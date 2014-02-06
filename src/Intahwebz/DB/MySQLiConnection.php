@@ -114,7 +114,6 @@ class MySQLiConnection implements Connection {
     function close($closeCached = false) {
         if (false) {
             $this->mysqli->close();
-            //$this->open = false;
         }
     }
 
@@ -124,18 +123,17 @@ class MySQLiConnection implements Connection {
     }
 
     function prepareStatement($queryString, $log = false, $callstackLevel = 0) {
-
         $statement = $this->mysqli->prepare($queryString);
 
         if ($statement == false) {
-            $errorString = "Error preparing statement " . $this->mysqli->error . ". Query was [\n" . $queryString . "\n]";
-
-            $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
-
-            throw new DBException($errorString . 'Called from ' . $calledFromString);
+            throw new DBException(
+                sprintf(
+                    "Error preparing statement %s. Query was [%s] ",
+                    $this->mysqli->error, $queryString
+                )
+            );
         }
 
-        $calledFromString = getCalledFromString(1 + $callstackLevel); // 1 is correct for prepared statements prepared through prepareAndExecute.
         $statementWrapper = $this->statementWrapperFactory->create($statement, $queryString, $this->logger);
 
         return $statementWrapper;

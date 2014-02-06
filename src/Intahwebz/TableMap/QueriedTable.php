@@ -20,30 +20,52 @@ abstract class QueriedTable {
      */
     abstract function getQuery();
 
+    /**
+     * @return mixed
+     */
     function getAlias() {
         return $this->alias;
     }
 
+    /**
+     * @return string
+     */
     function getSchema(){
         return $this->getTableMap()->schema;
     }
 
+    /**
+     * @return mixed
+     */
     function getTableName() {
         return $this->getTableMap()->tableName;
     }
 
+    /**
+     * @return string
+     */
     function getAliasedPrimaryColumn() {
         return $this->alias.".".$this->getTableMap()->getPrimaryColumn();
     }
 
+    /**
+     * @return bool
+     */
     function getPrimaryColumn() {
         return $this->getTableMap()->getPrimaryColumn();
     }
 
+    /**
+     * @return mixed
+     */
     function getColumns() {
         return $this->getTableMap()->columns;
     }
 
+    /**
+     * @param $column
+     * @return string
+     */
     function getColumn($column) {
         return $this->alias.".".$column;
     }
@@ -69,15 +91,12 @@ abstract class QueriedTable {
     }
 
 
+    /**
+     * @return QueriedTable
+     */
     function rand() {
-
         $aliasedTable = $this->getQuery()->aliasTableMap($this->getTableMap());
-
         $this->getQuery()->rand($this, $aliasedTable);
-
-        // WHERE r1.id >= r2.id
-        //$this->getQuery()->whe
-
         $this->getQuery()->order($this, $this->getTableMap()->getPrimaryColumn());
         $this->getQuery()->limit(1);
 
@@ -85,6 +104,13 @@ abstract class QueriedTable {
     }
 
 
+    /**
+     * @param $functionName
+     * @param $column
+     * @param $value
+     * @return $this
+     * @throws \Intahwebz\Exception\UnsupportedOperationException
+     */
     protected function whereColumnInternal($functionName, $column, $value) {
 
         $columnName = $this->getColumn($column);
@@ -134,6 +160,11 @@ abstract class QueriedTable {
     }
 
 
+    /**
+     * @param $column
+     * @param array $values
+     * @return $this
+     */
     function whereColumnIn($column, array $values) {
         $columnName = $this->getColumn($column);
         $dataType = $this->getTableMap()->getDataTypeForColumn($column, null);
@@ -154,11 +185,16 @@ abstract class QueriedTable {
     }
 
 
+    /**
+     * @param $functionName
+     * @param $column
+     * @param $value
+     * @return $this
+     */
     function whereColumnFunction($functionName, $column,  $value) {
         //TODO whitelist funcitonNames
         return $this->whereColumnInternal($functionName, $column, $value);
     }
-
 
 
 }

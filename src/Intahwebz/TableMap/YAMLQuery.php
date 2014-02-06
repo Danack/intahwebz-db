@@ -4,15 +4,14 @@
 namespace Intahwebz\TableMap;
 
 
-class YAMLQuery extends AbstractQuery{
-
+class YAMLQuery extends AbstractQuery {
+    
     /**
      * @param TableMap $tableMap
      * @internal param $tableName
      * @return QueriedYAMLTable
      */
     function aliasTableMap(TableMap $tableMap) {
-        /** @var $tableAlias YAMLTableMap */
         $tableAlias = $this->getAliasForTable($tableMap);
         return new QueriedYAMLTable($tableMap, $tableAlias, $this);
     }
@@ -142,33 +141,9 @@ class YAMLQuery extends AbstractQuery{
         return $tableMap;
     }
 
-
-//    /**
-//     * @param TableMap $tableMap
-//     * @return QueriedSQLTable
-//     * @throws \Exception
-//     */
-//    function aliasTableMap(TableMap $tableMap) {
-//
-//        if(in_array($tableMap->tableName, $this->tableNamesUsed) == FALSE){
-//            $this->tableNamesUsed[] = $tableMap->tableName;
-//
-//            return new QueriedSQLTable($tableMap, $tableMap->tableName, $this);
-//        }
-//
-//        $tableAliases = array( 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  );
-//
-//        if($this->aliasCount >= 0 && $this->aliasCount < count($tableAliases)){
-//            $this->aliasCount++;
-//
-//            return new QueriedYAMLTable($tableMap, $tableAliases[$this->aliasCount], $this);
-//        }
-//
-//        throw new \Exception("Out of aliases");
-//    }
-
-
-
+    function fetchObjects() {
+        throw new \Exception("Not implemented yet.");
+    }
 
 }
 

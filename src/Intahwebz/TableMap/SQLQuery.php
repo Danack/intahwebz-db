@@ -5,13 +5,10 @@ namespace Intahwebz\TableMap;
 use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
-//use PasswordHash\PasswordHash;
-use Intahwebz\DB\DataNotSetException;
 
 use Intahwebz\Exception\UnsupportedOperationException;
 
-
-class SQLQuery extends AbstractQuery{
+class SQLQuery extends AbstractQuery {
 
     use \Intahwebz\SafeAccess;
 
@@ -20,7 +17,9 @@ class SQLQuery extends AbstractQuery{
     /**
      * @var Connection
      */
-    var $dbConnection;
+    protected $dbConnection;
+
+    protected $queryString;
 
     static $showSQL = false;
     static $showSQLAndExit = false;
@@ -221,6 +220,29 @@ done:
 
         throw new \Exception("multiple rows found, when only one expected.");
     }
+
+
+    function fetchObjects() {
+//        var_dump($this->outputClass);
+//        exit(0);
+
+        $contentArray = $this->fetch();
+
+        //todo - this should just return an empty array
+        if (count($contentArray) == false) {
+            return null;
+        }
+
+        $return = array();
+        
+        if (count($this->outputClass) == 0) {
+            //TODO - this is hard coded
+            return castArraysToObjects('\Intahwebz\TableMap\Tests\DTO\MockNoteDTO', $contentArray);
+        }
+        
+        throw new \Exception("Not implemented yet.");
+        
+    }
     
     function fetch($doACount = false, $doADelete = false){
         $this->reset();
@@ -363,26 +385,6 @@ done:
                 
             }
 
-
-            if($sqlFragment instanceof SQLSearchFragment){
-                /** @var  $sqlFragment SQLSearchFragment */
-                $tableMap = $sqlFragment->tableMap;
-                $searchTable = $sqlFragment->searchTableMap;
-
-                $sqlFragment->column;
-                $sqlFragment->searchTerm;
-
-                //TODO - do I mean left or inner? Probably inner
-                $this->addSQL(" left join ");
-                $this->addSQL(" ".$searchTable->getSchema().".".$searchTable->getTableName()." as ".$searchTable->getAlias()." ");
-
-                $aliasedPrimaryColumn = $tableMap->getAliasedPrimaryColumn();
-                $primaryColumn = $tableMap->getPrimaryColumn();
-
-                $this->addSQL(" on ".$aliasedPrimaryColumn);
-                $this->addSQL(" = ".$searchTable->getAlias().'.'.$primaryColumn.' ');
-            }
-
             $previousTableMap = $tableMap;
         }
 
@@ -418,19 +420,6 @@ done:
                 $whereString = '';
                 $andString = ' and';
                 $this->bindParams($sqlFragment);
-            }
-
-            if($sqlFragment instanceof SQLSearchFragment){
-                /** @var  $sqlFragment SQLSearchFragment */
-                $searchTable = $sqlFragment->searchTableMap;
-                $searchColumn = $sqlFragment->column;
-                $searchTerm = $sqlFragment->searchTerm;
-
-                $this->addSQL($whereString.$andString);
-                $this->addSQL(' '.$searchTable->getAlias().'.'.$searchColumn.' like "'.$searchTerm.'" ');
-
-                $whereString = '';
-                $andString = ' and';
             }
         }
 
@@ -824,7 +813,12 @@ done:
         return $blahblah;
     }
 
-
+    /**
+     * @param TableMap $tableMap
+     * @param $nodeID
+     * @param null $maxRelativeDepth
+     * @return array
+     */
     function getDescendants(TableMap $tableMap, $nodeID, $maxRelativeDepth = null) {
         $this->reset();
 
@@ -852,10 +846,7 @@ done:
             $statementWrapper->bindParam('i', $nodeID);
         }
 
-
-
-
-        
+        //TODO - this is embarrasing.
         $blah = [];
         $blahblah = [];
 

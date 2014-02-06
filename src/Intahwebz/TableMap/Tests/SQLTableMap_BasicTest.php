@@ -45,7 +45,6 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
             $knownTable->generateObjectFile(
                 realpath(__DIR__)."/DTO/",
-                "DTO.php",
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );
         }
@@ -64,11 +63,12 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     function testInsertDTO() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
-        $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentSQLTableDTO;
+        $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentDTO;
         $insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
         $this->assertGreaterThan(0, $insertID, "Insert failed?");
 
         $insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
+        $this->assertNotNull($insertID, "Insert is null");
     }
 
 
@@ -105,7 +105,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $queriedTable = $sqlVerifyQuery->table($verifyTable);
         $queriedTable->whereColumn('username', $username);
 
-        $mockHashSQLTableDTO = $sqlVerifyQuery->fetchSingle(\Intahwebz\TableMap\Tests\DTO\MockHashSQLTableDTO::class);
+        $mockHashSQLTableDTO = $sqlVerifyQuery->fetchSingle(\Intahwebz\TableMap\Tests\DTO\MockHashDTO::class);
 
         $validated = password_verify($password, $mockHashSQLTableDTO->passwordHash);
 
@@ -266,7 +266,7 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     function testSelfJoin() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-        $aliasedTable = $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
 
         $sqlQuery->table($table);
         $sqlQuery->fetch();
@@ -359,12 +359,37 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
         //$sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make(Intahwebz\TableMap\Tests\MockContentSQLTable::class);
-        $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentSQLTableDTO;
+        $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentDTO();
         //$insertID = $sqlQuery->insertIntoMappedTable($table, $contentDTO);
         $insertID =$this->sqlQueryFactory->insertIntoMappedTable($table, $contentDTO);
 
         $this->assertGreaterThan(0, $insertID, "Insert failed?");
     }
+
+
+
+
+    function testByObject() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
+        $sqlQuery->tableObject($table)->whereColumn('mockNoteID', 1);
+
+        $sqlQuery->fetchObjects();
+        
+        exit(0);
+        
+//        $contentArray = $sqlQuery->fetch();
+//
+//        if (isset($contentArray[0]) == false) {
+//            return null;
+//        }
+
+        
+
+        //return castToObject(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray[0]);
+    }
+
+
 
 
 //$closureTable = [

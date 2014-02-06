@@ -39,6 +39,14 @@ abstract class TableMap {
         return $className;
     }
 
+    function getDTONamespace() {
+        return __NAMESPACE__."DTO";
+    }
+
+    function getDTOClassname() {
+        return ucfirst($this->getTableName())."DTO";
+    }
+
     function __clone() {
     }
 
@@ -161,10 +169,12 @@ abstract class TableMap {
         return false;
     }
 
+
+    
     //TODO - this really ought to be elsewhere.
     function getClassString() {
 
-        $output = "class ".$this->getClassName()."DTO {\n";
+        $output = "class ".$this->getDTOClassname()." {\n";
         foreach($this->columns as $column){
             $output .= "\tpublic \$".$column[0].";\n";
         }
@@ -201,15 +211,16 @@ abstract class TableMap {
         }
 
 
-        $lcTableName = mb_lcfirst($this->getClassName());
+        //$lcTableName = mb_lcfirst($this->getClassName());
+        $lcTableName = mb_lcfirst($this->getDTOClassName());
 
         $queryType = '\UnknownQueryType';
 
         if ($this instanceof \Intahwebz\TableMap\SQLTableMap) {
-            $queryType  = '\\'.\Intahwebz\TableMap\SQLQuery::class;
+            $queryType  = '\\Intahwebz\TableMap\SQLQuery';
         }
         else if ($this instanceof \Intahwebz\TableMap\YAMLTableMap) {
-            $queryType  = '\\'.\Intahwebz\TableMap\YAMLQuery::class;
+            $queryType  = '\\Intahwebz\TableMap\YAMLQuery';
         }
 
         $fullClassName = '\\'.get_class($this);
@@ -239,15 +250,14 @@ abstract class TableMap {
     }
 
 
-    function generateObjectFile($directory, $extension, $namespace) {
+    function generateObjectFile($directory, $namespace) {
 
         $output = "<?php\n\n";
         $output .= "namespace $namespace;\n\n";
-
         $output .= $this->getClassString();
         $output .= "\n";
 
-        $filename = $directory.$this->getClassName().$extension;
+        $filename = $directory.'/'.$this->getDTOClassName().'.php';
 
         ensureDirectoryExists($filename);
 
