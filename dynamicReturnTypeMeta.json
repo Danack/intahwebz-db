@@ -9,16 +9,6 @@
             "class": "\\Intahwebz\\TableMap\\SQLQuery",
             "method": "fetchSingle",
             "position": 0
-        },
-        {
-            "class": "\\Intahwebz\\TableMap\\SQLQuery",
-            "method": "getAncestors",
-            "position": 0
-        },
-        {
-            "class": "\\Intahwebz\\TableMap\\SQLQuery",
-            "method": "getDescendants",
-            "position": 0
         }
     ],
     "functionCalls": [

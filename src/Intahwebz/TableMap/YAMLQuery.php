@@ -3,6 +3,10 @@
 
 namespace Intahwebz\TableMap;
 
+use Intahwebz\TableMap\Fragment\SQLTableFragment;
+use Intahwebz\TableMap\Fragment\SQLValueFragment;
+use Intahwebz\TableMap\Fragment\SQLWhereFragment;
+
 
 class YAMLQuery extends AbstractQuery {
     
@@ -13,6 +17,7 @@ class YAMLQuery extends AbstractQuery {
      */
     function aliasTableMap(TableMap $tableMap) {
         $tableAlias = $this->getAliasForTable($tableMap);
+        /** @var  $tableMap YAMLTableMap */
         return new QueriedYAMLTable($tableMap, $tableAlias, $this);
     }
 

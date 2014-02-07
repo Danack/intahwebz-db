@@ -2,6 +2,19 @@
 
 namespace Intahwebz\TableMap;
 
+use Intahwebz\TableMap\Fragment\SQLFragment;
+use Intahwebz\TableMap\Fragment\SQLWhereFragment;
+
+use Intahwebz\TableMap\Fragment\SQLSelectColumnFragment;
+use Intahwebz\TableMap\Fragment\SQLTableFragment;
+
+use Intahwebz\TableMap\Fragment\SQLGroupFragment;
+use Intahwebz\TableMap\Fragment\SQLOrderFragment;
+use Intahwebz\TableMap\Fragment\SQLNullFragment;
+use Intahwebz\TableMap\Fragment\SQLValueFragment;
+use Intahwebz\TableMap\Fragment\SQLLimitFragment;
+use Intahwebz\TableMap\Fragment\SQLOffsetFragment;
+use Intahwebz\TableMap\Fragment\SQLRandOrderFragment;
 
 abstract class AbstractQuery {
 

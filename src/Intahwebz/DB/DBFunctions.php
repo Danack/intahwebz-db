@@ -48,11 +48,21 @@ function getNowMySQLTime(){
 }
 
 
-function getDayNumberForTimezone(Connection $dbConnection, $timezone){
+function getOffsetTime($supportedTimeZone) {
+    $dateTime = new DateTime();
+    $serverOffsetTime = $dateTime->getOffset();
+    $dateTimeZone = new DateTimeZone($supportedTimeZone);
+    $dateTime->setTimezone($dateTimeZone);
+    $offsetTime = $dateTime->getOffset();
 
+    return $offsetTime - $serverOffsetTime;
+}
+
+
+function getDayNumberForTimezone(Connection $dbConnection, $timezone){
     $offsetTime = getOffsetTime($timezone);
 
-    return	getDayNumberWithOffset($dbConnection, $offsetTime);
+    return getDayNumberWithOffset($dbConnection, $offsetTime);
 }
 
 
@@ -323,5 +333,23 @@ function	findUnmappedCharacters(DB\Connection $dbConnection, $lastDate = FALSE){
 
     return	$resultsArray;
 }
+
+use Intahwebz\TableMap\TableMap;
+
+    function getRelationshipTable(TableMap $firstTable, TableMap $secondTable) {
+
+        $className = sprintf(
+            '%sX%sX%sRelation',
+            $firstTable->getTableName(),
+            $secondTable->getTableName(),
+            "foo" //$secondTable->relationName
+        );
+
+        $namespace = getNamespace($firstTable);
+        $namespaceClassName = $namespace."\\".$className;
+
+        return new $namespaceClassName();
+    }
+
 
 }

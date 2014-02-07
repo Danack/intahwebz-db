@@ -1,23 +1,26 @@
 <?php
 
-use Intahwebz\DataPath;
-use Intahwebz\StoragePath;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FingersCrossed\ErrorLevelActivationStrategy;
 
-use Intahwebz\Logger\NullLogger;
 use Auryn\Provider;
 
 error_reporting(E_ALL);
 
 require_once('../config.php');
 
-//define('PATH_TO_ROOT', './');
+//Not require once because it's already been loaded by php unit.
+$autoloader = require('./vendor/autoload.php');
 
-require_once('./vendor/autoload.php');
+$path = realpath('./').'/test/';
+
+echo "Trying path - ".$path;
+
+$autoloader->add('Intahwebz', [realpath('./').'/test/']);
+
 
 function createStandardLogger($logChannelName = 'logchannelname') {
     $logger = new Logger($logChannelName);

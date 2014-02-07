@@ -5,8 +5,16 @@ namespace Intahwebz\TableMap;
 use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
-
+use Intahwebz\TableMap\Fragment\SQLTableFragment;
+use Intahwebz\TableMap\Fragment\SQLGroupFragment;
 use Intahwebz\Exception\UnsupportedOperationException;
+use Intahwebz\TableMap\Fragment\SQLLimitFragment;
+use Intahwebz\TableMap\Fragment\SQLOffsetFragment;
+use Intahwebz\TableMap\Fragment\SQLSelectColumnFragment;
+use Intahwebz\TableMap\Fragment\SQLNullFragment;
+use Intahwebz\TableMap\Fragment\SQLOrderFragment;
+use Intahwebz\TableMap\Fragment\SQLRandOrderFragment;
+use Intahwebz\TableMap\Fragment\SQLWhereFragment;
 
 class SQLQuery extends AbstractQuery {
 
@@ -30,6 +38,7 @@ class SQLQuery extends AbstractQuery {
 
     /**
      * @param TableMap $tableMap
+     * @throws \InvalidArgumentException
      * @internal param $tableName
      * @return QueriedTable
      */
@@ -274,7 +283,8 @@ done:
         $return = array();
         
         if (count($this->outputClass) == 0) {
-            return castArraysToObjects(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray);
+            //TODO - this is hard coded
+            return castArraysToObjects('\Intahwebz\TableMap\Tests\DTO\MockNoteDTO', $contentArray);
         }
         
         throw new \Exception("Not implemented yet.");
@@ -651,7 +661,6 @@ done:
                     $queryString .= $commaString;
                     $queryString .= "? ";
 
-
                     if(array_key_exists($column[0], $data) == FALSE ||
                         $data[$column[0]] == null){
                         if(array_key_exists('default', $column) == TRUE){
@@ -700,9 +709,7 @@ done:
 
         foreach ($tableMap->getRelatedTables() as $relatedTable) {
             //$relatedTableMap = $relatedTable->getTableMap();
-
             $relationShipTable = $relatedTable->getRelationshipTable($tableMap);
-
             $this->insertIntoMappedTable($relationShipTable, $foreignKeys);
         }
 
@@ -972,6 +979,18 @@ done:
 
         $statementWrapper->execute();
         $statementWrapper->close();
+    }
+
+    function relate(SQLTableMap $bugTable, $relationName, $tableID, $foreignID) {
+        
+        $this->reset();
+        //$relationTable = $bugTable->getRelationTable($relationName);
+        
+        //$this->table($relationTable);
+        //$relationTable->
+        
+        
+        
     }
 }
 

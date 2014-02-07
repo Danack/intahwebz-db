@@ -9,18 +9,18 @@
 
     <testsuites>
         <testsuite name="Intahwebz DB Test Suite">
-            <directory>./src/Intahwebz/DB/</directory>
-            <directory>./src/Intahwebz/DBSync/</directory>
-            <directory>./src/Intahwebz/TableMap/</directory>
+            <directory>./test/Intahwebz/DB/</directory>
+            <directory>./test/Intahwebz/DBSync/</directory>
+            <directory>./test/Intahwebz/TableMap/</directory>
         </testsuite>
     </testsuites>
 
     <filter>
-        <blacklist>
+        <!-- <blacklist>
             <directory>./src/Intahwebz/DB/Tests/</directory>
             <directory>./src/Intahwebz/DBSync/Tests/</directory>
             <directory>./src/Intahwebz/TableMap/Tests/</directory>
-        </blacklist>
+        </blacklist> -->
         <whitelist>
             <directory>./src/BaseReality</directory>
             <directory>./src/Intahwebz</directory>
