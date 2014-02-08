@@ -119,6 +119,35 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $count, "Failied to remove 2 + 3. ");
     }
 
+//Is this a duplicate?
+//    function testTreeSet() {
+//
+//        $dataSets = [
+//            [1, 1, "Fran What’s the cause of this bug?"],
+//            [2, 1, "Ollie I think it’s a null pointer."],
+//            [3, 2, "Fran No, I checked for that."],
+//            [4, 1, "Kukla We need to check for invalid input."],
+//            [5, 4, "Ollie Yes, that’s a bug."],
+//            [6, 4, "Fran Yes, please add a check."],
+//            [7, 6, "Kukla That fixed it."],
+//        ];
+//
+//        $sqlQuery = $this->sqlQueryFactory->create();
+//        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentSQLTable');
+//
+//        foreach ($dataSets as $dataSet) {
+//            $values = array();
+//            $values['parent'] = $dataSet[1];
+//            $values['text'] = $dataSet[2];
+//            $sqlQuery->insertIntoMappedTable($table, $values);
+//        }
+//
+//        $ancestors = $sqlQuery->getAncestors($table, 6);
+//        var_dump($ancestors);
+//        exit(0);
+//    }
+    
+
 
     /*
 

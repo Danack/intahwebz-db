@@ -30,15 +30,6 @@ class QueriedSQLTable extends QueriedTable {
     function getQuery() {
         return $this->abstractQuery;
     }
-
-    /**
-     * @param QueriedSQLTable $queriedTableMap
-     * @param null $relationName
-     * @return SQLTableMap|null
-     */
-    function findRelationTable(QueriedTable $queriedTableMap, $relationName = null) {
-        return $this->tableMap->findRelationTable($queriedTableMap->getTableMap(), $relationName);
-    }
 }
 
  

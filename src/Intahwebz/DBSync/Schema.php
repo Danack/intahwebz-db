@@ -164,53 +164,11 @@ class Schema {
                 continue;
             }
 
-            $relationTables = $this->createRelatedDatabaseTables($tableMap);
-
-            foreach ($relationTables as $relationTable) {
-                $table = new DatabaseTable($schemaName, $relationTable->getTableName());
-                $table->parseColumns($relationTable);
-                $this->addTable($relationTable->getTableName(), $table);
-            }
-
             $table = new DatabaseTable($schemaName, $tableName);
 
             $table->parseColumns($tableMap);
             $this->addTable($tableName, $table);
         }
-    }
-
-    /**
-     * @param TableMap $tableMap
-     * @return TableMap[]
-     */
-    function createRelatedDatabaseTables(TableMap $tableMap) {
-        $relationTables = array();
-
-        foreach ($tableMap->getRelatedTables() as $relatedTable) {
-
-            $relatedTableMap = $relatedTable->getTableMap();
-            $relationTableDefinition = $this->generateRelationDatabaseTableDefinition($tableMap, $relatedTableMap);
-
-            $className = $tableMap->getTableName().$relatedTableMap->getTableName()."Relation";
-            
-            
-
-            $this->generateObjectFileForRelationTable(
-                 "./var/src/",
-                 ".php",
-                 "BaseReality\\RelationTable",
-                 $className,
-                 $relationTableDefinition
-            );
-
-            //$tableMap->getClassName();
-            $namespace = getNamespace(get_class($tableMap));
-            $namespaceClassName = $namespace."\\".$className;
-
-            $relationTables[] = new $namespaceClassName();
-        }
-
-        return $relationTables;
     }
 
     /**

@@ -19,11 +19,6 @@ abstract class TableMap {
      * @var Relation[]
      */
     protected $relations = array();
-    
-    /**
-     * @var RelatedTable[]
-     */
-    protected $relatedTables = [];
 
     //TODO - make a getter
     public $objectName = null;
@@ -44,21 +39,6 @@ abstract class TableMap {
     
     function getObjectName() {
         return $this->objectName;
-    }
-
-    /**
-     * @return string
-     */
-    function getClassName() {
-        $className = get_class($this);
-
-        $slashPosition = strrpos($className, '\\');
-
-        if ($slashPosition !== false) {
-            return substr($className, $slashPosition + 1);
-        }
-
-        return $className;
     }
 
     /**
@@ -90,18 +70,10 @@ abstract class TableMap {
     }
 
     /**
-     * @return \Intahwebz\TableMap\RelatedTable[]
-     */
-    function getRelatedTables() {
-        return $this->relatedTables;
-    }
-
-    /**
      * @param $tableDefinition
      * @throws \UnexpectedValueException
      */
     function initTableDefinition($tableDefinition) {
-
         $requiredElements = array('tableName', 'columns', 'schema');
         
         foreach ($requiredElements as $requiredElement) {
@@ -118,10 +90,6 @@ abstract class TableMap {
         $this->columns = $tableDefinition['columns'];
         $this->schema = $tableDefinition['schema'];
         
-
-//        if (array_key_exists('relatedTables', $tableDefinition) == true) {
-//            $this->initRelatedTables($tableDefinition['relatedTables']);
-//        }
         if (array_key_exists('relations', $tableDefinition) == true) {
             $this->initRelations($tableDefinition['relations']);
         }
@@ -132,28 +100,6 @@ abstract class TableMap {
             $this->relations[] = new $relation();
         }
     }
-
-//    /**
-//     * @param $relatedTables
-//     * @throws \Exception
-//     */
-//    function initRelatedTables($relatedTables) {
-//
-//        foreach ($relatedTables as $relatedTableInfo) {
-//            $type = $relatedTableInfo[0];
-//            $relatedTableName = $relatedTableInfo[1];
-//            //$relatedTable = new $relatedTableName();
-//            
-//            if (isset($relatedTableInfo[2]) == false) {
-//                throw new \Exception("Relation name not set.");
-//            }
-//
-//            $relationName = $relatedTableInfo[2];
-//            
-//
-//            $this->relatedTables[] = new RelatedTable($relatedTable, $type, $relationName);
-//        }
-//    }
 
     /**
      * @param $columnNameToFind
@@ -220,9 +166,5 @@ abstract class TableMap {
         }
 
         return false;
-    }
-
-    function findRelationTable(TableMap $joinTableMap, $relationName = null) {
-        return null;
     }
 }

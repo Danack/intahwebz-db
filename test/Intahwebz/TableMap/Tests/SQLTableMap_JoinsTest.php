@@ -10,7 +10,7 @@ use Intahwebz\TableMap\Tests\DTO\UserTableDTO;
 use Intahwebz\TableMap\TableMapWriter;
 
 
-class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
+class SQLTableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @var \Auryn\Provider

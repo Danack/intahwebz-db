@@ -1,4 +1,8 @@
+<?php
 
+/*
+ 
+PHP unit thinks this is code without a commenting out.
 One-To-One, Unidirectional¶
 
 CREATE TABLE Product (
@@ -214,3 +218,6 @@ CREATE TABLE `user` (
 PRIMARY KEY (`userID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 delimiter ;
+
+
+*/

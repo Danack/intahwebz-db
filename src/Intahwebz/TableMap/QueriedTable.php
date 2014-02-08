@@ -3,7 +3,6 @@
 namespace Intahwebz\TableMap;
 
 use Intahwebz\SafeAccess;
-//use PasswordHash\PasswordHash;
 use Intahwebz\Exception\UnsupportedOperationException;
 
 abstract class QueriedTable {
@@ -195,14 +194,5 @@ abstract class QueriedTable {
         //TODO whitelist funcitonNames
         return $this->whereColumnInternal($functionName, $column, $value);
     }
-
-
-    /**
-     * @param QueriedSQLTable $queriedTableMap
-     * @param null $relationName
-     * @return Relation
-     */
-    abstract function findRelationTable(QueriedTable $queriedTableMap, $relationName = null);
-
 }
  
