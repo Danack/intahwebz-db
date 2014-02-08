@@ -70,8 +70,6 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
     function testIndex() {
         new \Intahwebz\TableMap\Tests\Table\TagTable();
         //TODO - check that the index is actually used?
-        
-        echo "What ho chaps!";
     }
     
     function testInsertDTO() {
@@ -168,6 +166,16 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $sqlQuery->updateMappedTable($table, $noteParams);
     }
 
+    function testCount() {
+
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
+        
+        $result = $sqlQuery->count();
+        $this->assertEquals($result, 1);
+    }
+    
 
     function testGroup() {
 

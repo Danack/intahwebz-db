@@ -1061,6 +1061,7 @@ endSQLFragment:
     }
 
     /**
+     * Deletes a node.
      * @param TableMap $tableMap
      * @param $nodeID
      */
@@ -1069,7 +1070,10 @@ endSQLFragment:
         $this->queryString = "";
 
         $tableName = $tableMap->schema.".".$tableMap->tableName;
-        $this->addSQL("delete from ".$tableName."_TreePaths  where descendant = ?");
+        $this->addSQL("delete from ".$tableName."_TreePaths where descendant = ?");
+        //TODO - shouldn't this also have
+        //delete FROM `mocks`.`mockComment_TreePaths` where ancestor = 4;
+        //And also update depths?
 
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
         $statementWrapper->bindParam('i', $nodeID);
@@ -1079,6 +1083,7 @@ endSQLFragment:
     }
 
     /**
+     * Deletes the descendants of a node.
      * @param TableMap $tableMap
      * @param $nodeID
      */

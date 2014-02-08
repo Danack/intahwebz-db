@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="bootstrap.php" 
-         printerFile="vendor/whatthejeff/nyancat-phpunit-resultprinter/src/NyanCat/PHPUnit/ResultPrinter.php"
-         printerClass="NyanCat\PHPUnit\ResultPrinter">
-    
+<phpunit bootstrap="bootstrap.php">
+
+    <!-- <phpunit bootstrap="bootstrap.php"
+             printerFile="vendor/whatthejeff/nyancat-phpunit-resultprinter/src/NyanCat/PHPUnit/ResultPrinter.php"
+             printerClass="NyanCat\PHPUnit\ResultPrinter"> -->
+
     <php>
     </php>
 

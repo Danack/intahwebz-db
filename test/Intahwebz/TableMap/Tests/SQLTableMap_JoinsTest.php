@@ -82,7 +82,6 @@ class SQLTableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         $sqlReadQuery->table($emailTable);
 
         $result1 = $sqlReadQuery->fetch();
-        var_dump($result1);
         $this->assertEquals(1, count($result1), "Failed to retrieve single result.");
         $entry = $result1[0];
 

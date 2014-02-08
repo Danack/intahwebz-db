@@ -3,6 +3,52 @@
 use Intahwebz\TableMap\SQLQueryFactory;
 use Intahwebz\TableMap\TableMapWriter;
 
+
+function renderComments($comments1) {
+    
+    usort($comments1, function($a, $b) {
+        
+        if ($a['parent'] < $b['parent']) {
+            return -1;
+        }
+        if ($a['parent'] > $b['parent']) {
+            return 1;
+        }
+        
+        return ($a['mockCommentID'] < $b['mockCommentID']) ? -1 : 1;
+    });
+
+    $indents = [];
+    echo "\n";
+    
+    foreach ($comments1 as $comment) {
+
+        if (array_key_exists($comment['parent'], $indents) == true) {
+            $indent = $indents[$comment['parent']] + 1;
+        }
+        else {
+            $indent = 0;
+        }
+        
+        echo $comment['mockCommentID'].' '.
+        $comment['parent']." ";
+        for ($x=0; $x<$indent ; $x++) {
+            if ($x != 0 ){
+                echo "/";
+            }
+            echo "--";
+        }
+        
+        echo ' '.$comment['text']."\n";
+
+        $indents[$comment['mockCommentID']] = $indent;
+    }
+    var_dump($indents);
+    
+    exit(0);
+}
+
+
 class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
 
     /**
@@ -14,13 +60,33 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
      * @var SQLQueryFactory
      */
     private $sqlQueryFactory;
+    
+    /** @var  \Intahwebz\TableMap\SQLTableMap */
+    private $treeTable;
+    
+    
+    private  $treeDataSet = [
+        //[1, null,  "Fran What’s the cause of this bug?"],
+        [1, 1,  "Fran What’s the cause of this bug?"],
+        [2, 1, "Ollie I think it’s a null pointer."],
+        [3, 2, "Fran No, I checked for that."],
+        [4, 1 , "Kukla We need to check for invalid input."],
+        [5, 4, "Ollie Yes, that’s a bug."],
+        [6, 4, "Fran Yes, please add a check for invalid input."],
+        [7, 6, "Kukla That fixed it."],
+    ];
 
     static function setUpBeforeClass() {
 
+    }
+
+    function setUp() {
         $mocks = [
         ];
 
-        $provider = createProvider($mocks);
+        $this->provider = createProvider($mocks);
+
+        $provider = createProvider();
         //This dumps all tables
         $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
@@ -44,44 +110,29 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
                 'Intahwebz\\TableMap\\Tests\\DTO'
             );
         }
-    }
-
-    function setUp() {
-        $mocks = [
-        ];
-
-        $this->provider = createProvider($mocks);
 
         $this->sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
-    }
-
-
-    function testTreeSet() {
-
-        $dataSets = [
-            //[1, null,  "Fran What’s the cause of this bug?"],
-            [1, 1,  "Fran What’s the cause of this bug?"],
-            [2, 1, "Ollie I think it’s a null pointer."],
-            [3, 2, "Fran No, I checked for that."],
-            [4, 1 , "Kukla We need to check for invalid input."],
-            [5, 4, "Ollie Yes, that’s a bug."],
-            [6, 4, "Fran Yes, please add a check."],
-            [7, 6, "Kukla That fixed it."],
-        ];
 
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentSQLTable');
 
-        foreach ($dataSets as $dataSet) {
+        foreach ($this->treeDataSet as $dataSet) {
             $values = array();
             $values['parent'] = $dataSet[1];
             $values['text'] = $dataSet[2];
             $sqlQuery->insertIntoMappedTable($table, $values);
         }
 
+        $this->treeTable = $table;
+    }
+
+    function testTreeSet() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+
+        $table = $this->treeTable;
+
         $stuff = $sqlQuery->getAncestors($table, 6);        
         $this->assertCount(3, $stuff);
-
         
         $ancestorIDs = array();
         foreach ($stuff as $item) {
@@ -107,144 +158,23 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
 
         $beforeDelete = $sqlQuery->getDescendants($table, 2);
         count($beforeDelete);
-        
         $sqlQuery->deleteDescendants($table, 2);
-        
         $afterDelete = $sqlQuery->getDescendants($table, 2);
-
-        
-        
         $count = count($beforeDelete) - count($afterDelete);
-        
+
         $this->assertEquals(2, $count, "Failied to remove 2 + 3. ");
     }
 
-//Is this a duplicate?
-//    function testTreeSet() {
-//
-//        $dataSets = [
-//            [1, 1, "Fran What’s the cause of this bug?"],
-//            [2, 1, "Ollie I think it’s a null pointer."],
-//            [3, 2, "Fran No, I checked for that."],
-//            [4, 1, "Kukla We need to check for invalid input."],
-//            [5, 4, "Ollie Yes, that’s a bug."],
-//            [6, 4, "Fran Yes, please add a check."],
-//            [7, 6, "Kukla That fixed it."],
-//        ];
-//
-//        $sqlQuery = $this->sqlQueryFactory->create();
-//        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentSQLTable');
-//
-//        foreach ($dataSets as $dataSet) {
-//            $values = array();
-//            $values['parent'] = $dataSet[1];
-//            $values['text'] = $dataSet[2];
-//            $sqlQuery->insertIntoMappedTable($table, $values);
-//        }
-//
-//        $ancestors = $sqlQuery->getAncestors($table, 6);
-//        var_dump($ancestors);
-//        exit(0);
-//    }
-    
 
+    function testTreeDelete() {
+        $sqlQuery = $this->sqlQueryFactory->create();
 
-    /*
-
-
-
-
-    //Get ancestors of comment #6
-    select c.* from Comments c
-    join TreePaths t
-    on (c.comment_id = t.ancestor)
-    where t.descendant = 6;
-
-    //Get descendants of comment #4
-    select c.* from Comments c
-    join treePaths t
-    on (c.comment_id = t.descendant)
-    where t.ancestor = 4;
-
-
-
-    //Gives first child of comment 4
-        Select c.* from comments c
-    join treepaths t
-    on (c.comment_id = t.descendant)
-    where t.ancestor = 4
-    and t.depth = 1;
-
-
-    // Delete child comment 7
-    Delete from TreePaths
-    where descendant = 7;
-
-
-    //Delete comments under 4
-
-    delete from treePaths where descendant in
-    ( select descendant from TreePaths
-    where ancestor = 4);
-
-    //Or
-     delete p from TreePaths P
-    join TreePaths a using (descendant)
-    where a.ancestor = 4;
-
-
-//Used
-
-
-        //Insert  anew child of commen #5
-
-    Insert in to comments...
-
-    Insert into treePaths (ancestor, descendant)
-    values (8, 8);
-
-    Insert into treePaths (ancestor, descendant)
-    select ancestor, 8 from TreePaths
-    where descendant = 5;
-
-
-
-
-    */
-
-
-//    function testSimplest() {
-//
-//        $sqlQuery = $this->sqlQueryFactory->create();
-//
-//        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-//
-//        $sqlQuery->tableAlready($table)->whereColumn('noteID', 1);
-//        $contentArray = $sqlQuery->fetch();
-//
-//        if (isset($contentArray[0]) == false) {
-//            return null;
-//        }
-//
-//        return castToObject(\Intahwebz\Content\Note::class, $contentArray[0]);
-//    }
-
-//    function testSearch() {
-//        $sqlQuery = $this->sqlQueryFactory->create();
-//        $table = $this->provider->make(Intahwebz\TableMap\Tests\MockNoteSQLTable::class);
-//        $tableAlias = $sqlQuery->tableAlready($table);
-//
-//
-//
-//
-//        $contentArray = $sqlQuery->fetch();
-//
-////        if (isset($contentArray[0]) == false) {
-////            return null;
-////        }
-//
-//        //return castToObject(\Intahwebz\Content\Note::class, $contentArray[0]);
-//    }
+        $table = $this->treeTable;
+        $comments1 = $sqlQuery->getDescendants($table, 1);
+        $sqlQuery->deleteNode($this->treeTable, 4);
+        $comments2 = $sqlQuery->getDescendants($table, 1);
+        $this->assertEquals(1, (count($comments1) - count($comments2)));
+    }
 
 }
  
