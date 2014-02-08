@@ -35,7 +35,7 @@ class SQLTableMap_RandTest extends \PHPUnit_Framework_TestCase {
 
 
         //This dumps all tables
-        $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
 
         $tablesToUprade = [
@@ -43,7 +43,7 @@ class SQLTableMap_RandTest extends \PHPUnit_Framework_TestCase {
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
-        $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
 
         $tableMapWriter = new TableMapWriter();
@@ -64,13 +64,13 @@ class SQLTableMap_RandTest extends \PHPUnit_Framework_TestCase {
         ];
 
         $this->provider = createProvider($mocks);
-        $this->sqlQueryFactory = $this->provider->make(Intahwebz\TableMap\SQLQueryFactory::class);
+        $this->sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
     }
 
     function testRandSelect() {
 
         $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->provider->make(Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable::class);
+        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable');
        
         for ($x=0 ; $x<50 ; $x++) {
             $data['title'] = generateRandomString(10);
@@ -80,7 +80,7 @@ class SQLTableMap_RandTest extends \PHPUnit_Framework_TestCase {
 
         for ($x=0 ; $x<60 ; $x++) {
             $sqlQuery = $this->sqlQueryFactory->create();
-            $table = $this->provider->make(Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable::class);
+            $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable');
             $sqlQuery->table($table)->rand();
             $result = $sqlQuery->fetch();
 

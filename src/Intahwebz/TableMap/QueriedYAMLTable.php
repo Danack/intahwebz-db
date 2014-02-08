@@ -40,5 +40,16 @@ class QueriedYAMLTable extends QueriedTable {
     function writeYAML($yamlData) {
         $this->tableMap->writeYAML($yamlData);
     }
+
+    /**
+     * @param QueriedSQLTable $queriedTableMap
+     * @param null $relationName
+     * @return Relation
+     */
+    function findRelationTable(QueriedTable $queriedTableMap, $relationName = null) {
+        throw new \Exception("not implemented.");
+    }
+
+
 }
  

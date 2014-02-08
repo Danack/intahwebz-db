@@ -22,7 +22,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
 
         $provider = createProvider($mocks);
         //This dumps all tables
-        $dbSync = $provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
 
         $tablesToUpgrade = [
@@ -31,7 +31,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
-        $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
 
@@ -52,7 +52,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
 
         $this->provider = createProvider($mocks);
 
-        $this->sqlQueryFactory = $this->provider->make(Intahwebz\TableMap\SQLQueryFactory::class);
+        $this->sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
     }
 
 
@@ -70,7 +70,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         ];
 
         $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->provider->make(Intahwebz\TableMap\Tests\Table\MockCommentSQLTable::class);
+        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentSQLTable');
 
         foreach ($dataSets as $dataSet) {
             $values = array();

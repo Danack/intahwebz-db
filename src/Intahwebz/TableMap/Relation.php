@@ -4,7 +4,7 @@
 namespace Intahwebz\TableMap;
 
 
-class Relation {
+abstract class Relation {
     
     //http://docs.doctrine-project.org/en/2.0.x/reference/association-mapping.html
     
@@ -25,6 +25,102 @@ class Relation {
     const MANY_TO_MANY_UNIDIRECTIONAL = 'MANY_TO_MANY_UNIDIRECTIONAL';
     const MANY_TO_MANY_BIDIRECTIONAL = 'MANY_TO_MANY_BIDIRECTIONAL';
     const MANY_TO_MANY_SELF_REFERENCING = 'MANY_TO_MANY_SELF_REFERENCING';
+
+    /** @var  string */
+    private $type;
+
+    /**
+     * @var string
+     */
+    private $owning;
+
+    /**
+     * @var string
+     */
+    private $inverse;
+
+    /**
+     * @var string
+     */
+    private $tableName;
+
+    abstract function getDefinition();
+    
+    function __construct() {
+        $definition = $this->getDefinition();
+        $this->type = $definition['type'];
+        $this->owning = $definition['owning'];
+        $this->inverse = $definition['inverse'];
+        $this->tableName = $definition['tableName'];
+    }
+
+    function matches(TableMap $joinTableMap) {
+
+        if ($joinTableMap instanceof $this->inverse) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInverse() {
+        return $this->inverse;
+    }
+
+    public function getInverseTable() {
+        $tableName = $this->inverse;
+        return new $tableName();
+    }
+    
+    
+    
+    /**
+     * @return string
+     */
+    public function getOwning() {
+        return $this->owning;
+    }
+
+    public function getOwningTable() {
+        $tableName = $this->owning;
+        return new $tableName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getTableName() {
+        return $this->tableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * @param TableMap $tableMap
+     * @return null|TableMap
+     */
+    function getJoinTable(TableMap $tableMap) {
+        if ($this->tableName) {
+            $owningSide = $this->owning;
+            if ($tableMap instanceof $owningSide) { 
+                return new $this->tableName();
+            }
+        }
+
+        return null;
+    }
+    
 }
+
+
+
 
  

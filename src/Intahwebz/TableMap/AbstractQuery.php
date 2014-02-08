@@ -71,10 +71,14 @@ abstract class AbstractQuery {
      */
     function table(TableMap $tableMap, QueriedTable $joinTableMap = null) {
 
+        if ($joinTableMap != null) {
+            echo "not null here.";
+        }
+        
         $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
         $this->sqlFragments[] = $newFragment;
 
-        return $newFragment->tableMap;
+        return $newFragment->queriedTableMap;
     }
 
     /**
@@ -87,17 +91,22 @@ abstract class AbstractQuery {
         $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
         $this->sqlFragments[] = $newFragment;
 
-        return $newFragment->tableMap;
+        return $newFragment->queriedTableMap;
     }
     
     
     /**
+     * 
      * @param TableMap $tableMap
      * @param QueriedTable $joinTableMap
      * @return SQLTableFragment
      */
     function makeTableFragment(TableMap $tableMap, QueriedTable $joinTableMap = null) {
         $queriedTable = $this->aliasTableMap($tableMap);
+        if ($joinTableMap != null) {
+            echo "yeah not null";
+        }
+        
         $newFragment = new SQLTableFragment($queriedTable, $joinTableMap);
 
         return $newFragment;

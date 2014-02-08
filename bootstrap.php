@@ -15,9 +15,6 @@ require_once('../config.php');
 //Not require once because it's already been loaded by php unit.
 $autoloader = require('./vendor/autoload.php');
 
-$path = realpath('./').'/test/';
-
-echo "Trying path - ".$path;
 
 $autoloader->add('Intahwebz', [realpath('./').'/test/']);
 
@@ -58,8 +55,8 @@ function createProvider($mocks = array(), $shares = array()) {
     $standardImplementations = [
         //'Intahwebz\Session' => Intahwebz\Session\MockSession::class,
         //'Intahwebz\Storage\Storage' => Intahwebz\Storage\S3Storage::class,
-        'Intahwebz\DB\Connection' => Intahwebz\DB\ProxiedConnectionWrapper::class,
-        Intahwebz\DB\StatementFactory::class => Intahwebz\DB\MySQLiStatementFactory::class
+        'Intahwebz\DB\Connection' => 'Intahwebz\DB\ProxiedConnectionWrapper',
+        'Intahwebz\DB\StatementFactory' => 'Intahwebz\DB\MySQLiStatementFactory'
         //'Intahwebz\Router' => Intahwebz\Routing\Router::class,
         //'Intahwebz\FileFetcher' => Intahwebz\Utils\UploadedFileFetcher::class,
         //'Intahwebz\Request' => Intahwebz\Routing\HTTPRequest::class,
@@ -70,7 +67,7 @@ function createProvider($mocks = array(), $shares = array()) {
     $standardLogger = createStandardLogger();
 
     $provider = new Provider();
-    $provider->alias('Psr\Log\LoggerInterface', Intahwebz\Logger\NullLogger::class);
+    $provider->alias('Psr\Log\LoggerInterface', 'Intahwebz\Logger\NullLogger');
 
 
     $dbParams = array(
@@ -82,11 +79,11 @@ function createProvider($mocks = array(), $shares = array()) {
     );
 
     $provider->define(
-             \Intahwebz\DB\MySQLiConnection::class,
+             'Intahwebz\DB\MySQLiConnection',
              $dbParams
     );
     $provider->define(
-             \Intahwebz\DB\ProxiedConnectionWrapper::class,
+             'Intahwebz\DB\ProxiedConnectionWrapper',
              $dbParams
     );
 

@@ -145,6 +145,10 @@ class SQLQuery extends AbstractQuery {
     }
 
     /**
+     * Find the join column between two tables, where the second table
+     * has a foreign key to the first table
+     * @TODO replace with the relation stuff.
+     * 
      * @param QueriedTable $tableMap
      * @param QueriedTable $joinTableMap
      * @return bool|null
@@ -178,75 +182,180 @@ class SQLQuery extends AbstractQuery {
     }
 
     /**
+     * Inserts SQLTableFragment's to allow tables to be joined. The SQLTableFragment are
+     * created either from the tables defined relations or an examination of their
+     * columns.
+     * This kind of gets repeated later when the join is actually done.
      * @throws \Exception
      */
-    function addRelatedTables() {
-
-        //email then user
-        //user then email
+    function addJoiningRelationTables() {
 
         $modifiedSQLFragments = [];
 
-        //$previousTable = null;
-
         $previousTableMap = null;
+        $first = true;
 
         foreach ($this->sqlFragments as $sqlFragment) {
 
             if($sqlFragment instanceof SQLTableFragment){
 
-                /** @var  $sqlFragment SQLTableFragment */
-                $tableMap = $sqlFragment->tableMap;
-
-                $joinTableMap = $sqlFragment->joinTableMap;
-
-                if ($joinTableMap == null){
-                    $joinTableMap = $previousTableMap;
+                if ($first == true) {
+                    goto endSQLFragment; //yolo
                 }
 
-                if ($joinTableMap != null) {
-                    $joinColumn = $this->getJoinColumn($tableMap, $joinTableMap);
+                $joinTableMap = $sqlFragment->queriedJoinTableMap;
 
-                    if ($joinColumn == null) {
+                if ($joinTableMap == null) {            //If we were not told explicitly which table t join to
+                    $joinTableMap = $previousTableMap;  //try to join to the previous one.
+                }
 
-                        $newFragment = null;
+                //Try and find a column to join on automatically.
+                $autoJoinColumn = $this->getJoinColumn($sqlFragment->queriedTableMap, $joinTableMap);
 
-                        $relatedTables = $tableMap->getTableMap()->getRelatedTables();
+                if ($autoJoinColumn == null) {
+                    //We failed to join automatically - lets try the proper relation stuff
+                    $relatedTable = $this->findRelationTable($sqlFragment->queriedTableMap, $joinTableMap);
 
-                        foreach($relatedTables as $relatedTable) {
-                            if ($relatedTable->getTableMap() == $joinTableMap->getTableMap()) {
-                                $relationTable = $relatedTable->getRelationshipTable($tableMap->getTableMap());
-                                $newFragment = $this->makeTableFragment($relationTable);
-                                goto done;
-                            }
-                        }
-
-                        $relatedTables = $joinTableMap->getTableMap()->getRelatedTables();
-
-                        foreach($relatedTables as $relatedTable) {
-                            if ($relatedTable->getTableMap() == $tableMap->getTableMap()) {
-                                $relationTable = $relatedTable->getRelationshipTable($joinTableMap->getTableMap());
-                                $newFragment = $this->makeTableFragment($relationTable);
-                                goto done;
-                            }
-                        }
-done:
-                        if($newFragment == null) {
-                            throw new \Exception("Join will fail, as failed to find join fragment.");
-                        }
-
-                        $modifiedSQLFragments[] = $newFragment;
+                    if ($relatedTable) {
+                        $modifiedSQLFragments[] = $this->makeTableFragment($relatedTable);
                     }
                 }
 
-                $previousTableMap = $tableMap;
+endSQLFragment:
+                $previousTableMap = $sqlFragment->queriedTableMap;
             }
 
             $modifiedSQLFragments[] = $sqlFragment;
+            $first = false;
         }
 
         $this->sqlFragments = $modifiedSQLFragments;
     }
+
+    /**
+     * @param QueriedTable $queriedTableMap
+     * @param QueriedTable $joinTableMap
+     * @return null
+     */
+    function findRelationTable(QueriedTable $queriedTableMap, QueriedTable $joinTableMap) {
+        $joinTable = null;
+
+        $relations = $queriedTableMap->getTableMap()->getRelations();
+        $relations = array_merge($relations, $joinTableMap->getTableMap()->getRelations());
+
+        /** @var $relations Relation[] */
+        
+        foreach($relations as $relation) {
+
+            $owningType = $relation->getOwning();
+            $inverseType = $relation->getInverse();
+            
+            if ($queriedTableMap->getTableMap() instanceof $owningType && 
+                $joinTableMap->getTableMap() instanceof $inverseType) {
+                $tableName = $relation->getTableName();
+                return new $tableName();
+            }
+            if ($queriedTableMap->getTableMap() instanceof $inverseType &&
+                $joinTableMap->getTableMap() instanceof $owningType) {
+                $tableName = $relation->getTableName();
+                return new $tableName();
+            }
+        }
+        
+//        class Intahwebz\TableMap\Tests\Table\emailuserprimaryEmailRelation#2019 (4) {
+//    private $type =>_-_-_- ""  ""    
+//    string(22) "ONE_TO_ONE_DIRECTIONAL"
+//    private $owning =>
+//    string(40) "Intahwebz\TableMap\Tests\Table\UserTable"
+//    private $inverse =>
+//    string(41) "Intahwebz\TableMap\Tests\Table\EmailTable"
+//    private $tableName =>
+//    string(49) "Intahwebz\TableMap\Tests\Table\EmailUserJoinTable"
+//  }
+        
+        echo "Could not find relation:";
+        var_dump($relations);
+        exit(0);
+        
+//        if ($relation = $queriedTableMap->findRelationTable($joinTableMap)) {
+//            $joinTable = $relation->getInverseTable();
+//        }
+//        else {
+//            $relation = $joinTableMap->findRelationTable($queriedTableMap);
+//            if ($relation != null) {
+//                $joinTable = $relation->getInverseTable();
+//            }
+//        }
+        
+        return $joinTable;
+    }
+    
+    
+    function foo(QueriedTable $tableMap, QueriedTable $joinTableMap) {
+        $relationTable = null;
+        $joinColumn = $this->getJoinColumn($tableMap, $joinTableMap);
+
+        if ($joinColumn == null) {
+
+            $newFragment = null;
+            $relatedTables = $tableMap->getTableMap()->getRelatedTables();
+
+            foreach($relatedTables as $relatedTable) {
+                if ($relatedTable->getTableMap() == $joinTableMap->getTableMap()) {
+                    $relationTable = $relatedTable->getRelationshipTable($tableMap->getTableMap());
+                    $newFragment = $this->makeTableFragment($relationTable);
+                    goto done;
+                }
+            }
+
+            $relatedTables = $joinTableMap->getTableMap()->getRelatedTables();
+
+            foreach($relatedTables as $relatedTable) {
+                if ($relatedTable->getTableMap() == $tableMap->getTableMap()) {
+                    $relationTable = $relatedTable->getRelationshipTable($joinTableMap->getTableMap());
+                    $newFragment = $this->makeTableFragment($relationTable);
+                    goto done;
+                }
+            }
+done:
+            if($newFragment == null) {
+                throw new \Exception("Join will fail, as failed to find join fragment.");
+            }
+
+            $modifiedSQLFragments[] = $newFragment;
+        }
+
+}
+    
+    
+/*
+     
+    
+    //                        $relatedTables = $tableMap->getTableMap()->getRelatedTables();
+//
+//                        foreach($relatedTables as $relatedTable) {
+//                            if ($relatedTable->getTableMap() == $joinTableMap->getTableMap()) {
+//                                $relationTable = $relatedTable->getRelationshipTable($tableMap->getTableMap());
+//                                $newFragment = $this->makeTableFragment($relationTable);
+//                                goto done;
+//                            }
+//                        }
+//
+//                        $relatedTables = $joinTableMap->getTableMap()->getRelatedTables();
+//
+//                        foreach($relatedTables as $relatedTable) {
+//                            if ($relatedTable->getTableMap() == $tableMap->getTableMap()) {
+//                                $relationTable = $relatedTable->getRelationshipTable($joinTableMap->getTableMap());
+//                                $newFragment = $this->makeTableFragment($relationTable);
+//                                goto done;
+//                            }
+//                        }
+//done:
+//                        if($newFragment == null) {
+//                            throw new \Exception("Join will fail, as failed to find join fragment.");
+//                        }
+    
+    */
 
 
     /**
@@ -286,9 +395,8 @@ done:
             //TODO - this is hard coded
             return castArraysToObjects('\Intahwebz\TableMap\Tests\DTO\MockNoteDTO', $contentArray);
         }
-        
+
         throw new \Exception("Not implemented yet.");
-        
     }
 
     /**
@@ -301,9 +409,12 @@ done:
     function fetch($doACount = false, $doADelete = false){
         $this->reset();
         $whereString = ' where ';
-        $autoAddColumns = TRUE;
 
-        $this->addRelatedTables();
+        //Automatically add all columns from tables i.e. no specific columns
+        //were quried.
+        $autoAddColumns = TRUE; 
+
+        $this->addJoiningRelationTables();
 
         if ($doADelete == true) {
 
@@ -314,7 +425,7 @@ done:
             foreach($this->sqlFragments as $sqlFragment) {
                 if ($sqlFragment instanceof SQLTableFragment) {
                     if ($schema == null) {
-                        $schema = $sqlFragment->tableMap->getSchema();
+                        $schema = $sqlFragment->queriedTableMap->getSchema();
                     }
                 }
             }
@@ -332,7 +443,7 @@ done:
             foreach($this->sqlFragments as $sqlFragment){
                 if ($sqlFragment instanceof SQLTableFragment) {
                     /** @var  $sqlFragment SQLTableFragment */
-                    $tableMap = $sqlFragment->tableMap;
+                    $tableMap = $sqlFragment->queriedTableMap;
                     $this->addSQL($separator.$tableMap->getAlias());
                     $separator = ", ";
                 }
@@ -360,7 +471,8 @@ done:
             foreach($this->sqlFragments as $sqlFragment) {
                 if($autoAddColumns == TRUE){
                     if($sqlFragment instanceof SQLTableFragment){
-                        $this->addColumns($sqlFragment->tableMap);
+                        /** @var $sqlFragment SQLTableFragment */
+                        $this->addColumns($sqlFragment->queriedTableMap);
                     }
                 }
                 if($sqlFragment instanceof SQLGroupFragment){
@@ -380,9 +492,9 @@ done:
         foreach($this->sqlFragments as $sqlFragment) {
             if($sqlFragment instanceof SQLTableFragment){
                 /** @var  $sqlFragment SQLTableFragment */
-                $tableMap = $sqlFragment->tableMap;
+                $tableMap = $sqlFragment->queriedTableMap;
 
-                $joinTableMap = $sqlFragment->joinTableMap;
+                $joinTableMap = $sqlFragment->queriedJoinTableMap;
 
                 if ($joinTableMap == null){
                     $joinTableMap = $previousTableMap;
@@ -431,8 +543,6 @@ done:
                              (SELECT MAX(".$tableMap->getPrimaryColumn().")
                         FROM ".$tableMap2->getSchema().".".$tableMap2->getTableName().")) as ".$tableMap->getPrimaryColumn()." )
                     AS ".$tableMap2->getAlias()."_rand");
-
-                //$this->addSQL( " where ".$tableMap->getAliasedPrimaryColumn()."  >= ".$tableMap2->getAliasedPrimaryColumn()."_rand" );
 
                 $this->addSQL( " where ".$tableMap->getAliasedPrimaryColumn()."  >= ".$tableMap2->getAlias()."_rand.".$tableMap2->getPrimaryColumn() );
 
@@ -695,9 +805,7 @@ done:
         }
 
         $statementWrapper->execute();
-
         $insertID = $statementWrapper->statement->insert_id;
-
         $statementWrapper->close();
 
 
@@ -707,15 +815,33 @@ done:
 
         $foreignKeys[$tableMap->getPrimaryColumn()] = $insertID;
 
-        foreach ($tableMap->getRelatedTables() as $relatedTable) {
-            //$relatedTableMap = $relatedTable->getTableMap();
-            $relationShipTable = $relatedTable->getRelationshipTable($tableMap);
-            $this->insertIntoMappedTable($relationShipTable, $foreignKeys);
-        }
+        $this->insertIntoRelationTables($foreignKeys, $tableMap);
+
+     
 
         return $insertID;
     }
 
+    function insertIntoRelationTables($foreignKeys, TableMap $tableMap) {
+        //We failed to join automatically - lets try the proper relation stuff
+//        $relatedTable = $this->findRelationTable($sqlFragment->queriedTableMap, $joinTableMap);
+
+        $relations = $tableMap->getRelations();
+        
+        foreach ($relations as $relation) {
+            $tableToInsert = $relation->getJoinTable($tableMap);
+            if ($tableToInsert) {
+                $this->insertIntoMappedTable($tableToInsert, $foreignKeys);
+            }
+        }
+
+        /* foreach ($tableMap->getRelatedTables() as $relatedTable) {
+            //$relatedTableMap = $relatedTable->getTableMap();
+            $relationShipTable = $relatedTable->getRelationshipTable($tableMap);
+            $this->insertIntoMappedTable($relationShipTable, $foreignKeys);
+        } */
+    }
+    
     /**
      * @param Connection $dbConnection
      * @throws \Intahwebz\Exception\UnsupportedOperationException
@@ -919,13 +1045,6 @@ done:
 
         while ($statementWrapper->statement->fetch()) {
             $really = array();
-
-//            foreach($tableMap->columns as $columnDefinition){
-//                $this->addColumnFromTableAlias($tableMap->tableName, $columnDefinition[0]);
-//            }
-//            mockCommentTreeID
-//            depth
-
             $really['mockCommentID'] = $blah['mockCommentID'];
             $really['text'] = $blah['text'];
             $really['parent'] = $blah['parent'];
@@ -988,9 +1107,6 @@ done:
         
         //$this->table($relationTable);
         //$relationTable->
-        
-        
-        
     }
 }
 

@@ -17,7 +17,7 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
         $provider = createProvider($mocks);
 
         //This dumps all tables
-        $dbSync = $provider->make('\Intahwebz\DBSync\DBSync');
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
     }
 
@@ -42,7 +42,7 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
-        $dbSync = $this->provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $this->provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
 
         $tableMapWriter = new TableMapWriter();

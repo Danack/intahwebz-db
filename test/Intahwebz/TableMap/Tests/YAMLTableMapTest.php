@@ -69,7 +69,7 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
 
 
     function testTwoTables() {
-        $this->setExpectedException(\BadFunctionCallException::class);
+        $this->setExpectedException('\BadFunctionCallException');
         $query = new YAMLQuery();
         $query->table($this->testTable)->whereColumn('name', 'Danack');
         $query->table($this->testTable)->whereColumn('value', 12);
@@ -78,7 +78,7 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
     }
 
     function testMissingTable() {
-        $this->setExpectedException(\BadFunctionCallException::class);
+        $this->setExpectedException('\BadFunctionCallException');
         $query = new YAMLQuery();
 
         $query->fetch();
@@ -86,13 +86,13 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
 
 
     function	testDelete(){
-        $this->setExpectedException(\BadFunctionCallException::class);
+        $this->setExpectedException('\BadFunctionCallException');
         $query = new YAMLQuery();
         $query->delete();
     }
 
     function testCount() {
-        $this->setExpectedException(\BadFunctionCallException::class);
+        $this->setExpectedException('\BadFunctionCallException');
         $query = new YAMLQuery();
         $query->count();
     }

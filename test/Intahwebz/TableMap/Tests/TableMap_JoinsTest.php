@@ -31,7 +31,7 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         $provider = createProvider($mocks);
 
         //This dumps all tables
-        $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', []);
 
         /** @var  $tablesToUpgrade \Intahwebz\TableMap\SQLTableMap[] */
@@ -43,7 +43,7 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
-        $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
         $tableMapWriter = new TableMapWriter();
@@ -65,8 +65,8 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
     function testInsertWithAutoJoinTable() {
         $sqlQuery = $this->sqlQueryFactory->create();
 
-        $userTable = $this->provider->make(\Intahwebz\TableMap\Tests\Table\UserTable::class);
-        $emailTable = $this->provider->make(\Intahwebz\TableMap\Tests\Table\EmailTable::class);
+        $userTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\UserTable');
+        $emailTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\EmailTable');
 
         $userDTO = new UserTableDTO(null, null, "Dan", "Ackroyd");
         $userID = $userDTO->insertInto($sqlQuery, $userTable);
@@ -82,6 +82,7 @@ class TableMap_JoinsTest extends \PHPUnit_Framework_TestCase {
         $sqlReadQuery->table($emailTable);
 
         $result1 = $sqlReadQuery->fetch();
+        var_dump($result1);
         $this->assertEquals(1, count($result1), "Failed to retrieve single result.");
         $entry = $result1[0];
 

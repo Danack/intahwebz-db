@@ -26,7 +26,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     protected function setUp(){
 
         $this->provider = createProvider([]);
-        $this->dbConnection = $this->provider->make(Intahwebz\DB\Connection::class);
+        $this->dbConnection = $this->provider->make('Intahwebz\DB\Connection');
 
 
         $mocks = [
@@ -45,7 +45,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
-        $dbSync = $provider->make(Intahwebz\DBSync\DBSync::class);
+        $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
     }
 

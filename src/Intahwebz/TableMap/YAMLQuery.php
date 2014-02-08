@@ -131,7 +131,7 @@ class YAMLQuery extends AbstractQuery {
         foreach($this->sqlFragments as $sqlFragment){
             if($sqlFragment instanceof SQLTableFragment){
                 if($tableMap === FALSE){
-                    $tableMap = $sqlFragment->tableMap;
+                    $tableMap = $sqlFragment->queriedTableMap;
                 }
                 else{
                     throw new \BadFunctionCallException("YAML Query only support one table for now.");

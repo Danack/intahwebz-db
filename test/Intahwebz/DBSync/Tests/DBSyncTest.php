@@ -17,7 +17,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     protected function setUp(){
 
         $provider = createProvider([]);
-        $dbConnection = $provider->make(\Intahwebz\DB\Connection::class);
+        $dbConnection = $provider->make('Intahwebz\DB\Connection');
 
         /**
          * @var $dbConnection \Intahwebz\DB\Connection
@@ -37,7 +37,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
     public function testBasic() {
 
         /** @var $dbSync \Intahwebz\DBSync\DBSync */
-        $dbSync = $this->provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $this->provider->make('Intahwebz\DBSync\DBSync');
 
 
         $tablesToUprade = [
@@ -69,7 +69,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
 
     public function testFields() {
         /** @var $dbSync \Intahwebz\DBSync\DBSync */
-        $dbSync = $this->provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $this->provider->make('Intahwebz\DBSync\DBSync');
 
         $tablesToUprade = [
             new \Intahwebz\DBSync\Tests\MockFieldChangeBeforeTable(),
@@ -78,7 +78,7 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
 
         /** @var $dbSync \Intahwebz\DBSync\DBSync */
-        $dbSync = $this->provider->make(\Intahwebz\DBSync\DBSync::class);
+        $dbSync = $this->provider->make('Intahwebz\DBSync\DBSync');
 
         $tablesToUprade = [
             new \Intahwebz\DBSync\Tests\MockFieldChangeAfterTable(),

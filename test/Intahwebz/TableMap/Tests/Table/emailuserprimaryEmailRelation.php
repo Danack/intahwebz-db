@@ -7,14 +7,14 @@ use Intahwebz\TableMap\SQLTableMap;
 
 use Intahwebz\TableMap\Relation;
 
-class emailuserprimaryEmailRelation { //extends SQLTableMap  {
+class emailuserprimaryEmailRelation extends Relation {
 
-    function getRelationDefinition() {
+    function getDefinition() {
         return array(
             'type' => Relation::ONE_TO_ONE_BIDIRECTIONAL,
-            'owning' => '\Intahwebz\TableMap\Tests\Table\UserTable',
-            'inverse' => '\Intahwebz\TableMap\Tests\Table\EmailTable',
-            'tableName' => '\Intahwebz\TableMap\Tests\Table\EmailUserJoinTable'
+            'owning' => 'Intahwebz\TableMap\Tests\Table\EmailTable',
+            'inverse' => 'Intahwebz\TableMap\Tests\Table\UserTable',
+            'tableName' => 'Intahwebz\TableMap\Tests\Table\EmailUserJoinTable'
         );
     }
     

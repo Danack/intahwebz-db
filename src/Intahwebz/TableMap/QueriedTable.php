@@ -197,5 +197,12 @@ abstract class QueriedTable {
     }
 
 
+    /**
+     * @param QueriedSQLTable $queriedTableMap
+     * @param null $relationName
+     * @return Relation
+     */
+    abstract function findRelationTable(QueriedTable $queriedTableMap, $relationName = null);
+
 }
  
