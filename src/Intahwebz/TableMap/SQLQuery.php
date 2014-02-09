@@ -73,7 +73,6 @@ class SQLQuery extends AbstractQuery {
         $this->addColumnFromTableAlias($tableMap->getAlias(), $column);
     }
 
-
     /**
      * @param $tableAlias
      * @param $column
@@ -218,7 +217,9 @@ class SQLQuery extends AbstractQuery {
                     $relatedTable = $this->findRelationTable($sqlFragment->queriedTableMap, $joinTableMap);
 
                     if ($relatedTable) {
-                        $modifiedSQLFragments[] = $this->makeTableFragment($relatedTable);
+                        $joinFragment = $this->makeTableFragment($relatedTable);
+                        $joinFragment->setFetchColumns(false);
+                        $modifiedSQLFragments[] = $joinFragment;
                     }
                 }
 
@@ -296,8 +297,6 @@ endSQLFragment:
         
         $contentArray = $this->fetch();
 
-        self::$showSQL = false;
-
         //todo - this should just return an empty array
         if (count($contentArray) == false) {
             return null;
@@ -307,13 +306,14 @@ endSQLFragment:
             return castArraysToObjects($this->outputClassnames[0], $contentArray);
         }
 
-        $compositeClassname = $this->generateCompositeObjectClassname();
-        
         if ($fuckPHP == true) {
-            var_dump($this->sqlFragments);
-            exit(0);
+            $dto = new \Intahwebz\TableMap\Tests\DTO\PersonDTOXPhoneNumberDTO();
+            $dto->initFromResultSet($contentArray);
+            return $dto;
         }
-        
+
+        $compositeClassname = $this->generateCompositeObjectClassname();
+
         $compositeObjects = array();
         foreach($contentArray as $content) {
             $objects = array();
@@ -421,7 +421,9 @@ endSQLFragment:
                 if($autoAddColumns == TRUE){
                     if($sqlFragment instanceof SQLTableFragment){
                         /** @var $sqlFragment SQLTableFragment */
-                        $this->addColumns($sqlFragment->queriedTableMap);
+                        if ($sqlFragment->getFetchColumns() == true) {
+                            $this->addColumns($sqlFragment->queriedTableMap);
+                        }
                     }
                 }
                 if($sqlFragment instanceof SQLGroupFragment){

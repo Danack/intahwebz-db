@@ -15,6 +15,8 @@ class SQLTableFragment extends SQLFragment {
      * @var QueriedTable
      */
     var $queriedJoinTableMap = null;
+    
+    private $fetchColumns = true;
 
     function __construct(QueriedTable $tableMap, QueriedTable $joinTableMap = null) {
         parent::__construct('table');
@@ -34,6 +36,17 @@ class SQLTableFragment extends SQLFragment {
      */
     public function getQueriedTableMap() {
         return $this->queriedTableMap;
+    }
+    
+    function setFetchColumns($boolean) {
+        $this->fetchColumns = boolval($boolean);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getFetchColumns() {
+        return $this->fetchColumns;
     }
     
     
