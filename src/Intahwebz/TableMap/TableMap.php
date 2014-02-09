@@ -13,6 +13,8 @@ abstract class TableMap {
     var $tableName;
     var $columns;
 
+    private $dtoNamespace;
+    
     var $indexColumns = array();
 
     /**
@@ -45,7 +47,8 @@ abstract class TableMap {
      * @return string
      */
     function getDTONamespace() {
-        return __NAMESPACE__."DTO";
+
+        return $this->dtoNamespace;
     }
 
     /**
@@ -74,6 +77,21 @@ abstract class TableMap {
      * @throws \UnexpectedValueException
      */
     function initTableDefinition($tableDefinition) {
+
+        if (array_key_exists('dtoNamespace', $tableDefinition)) {
+            $this->dtoNamespace = $tableDefinition['dtoNamespace'];
+        }
+        else {
+            $namespace = getNamespace($this);
+            $pos = strrpos($namespace, 'Table', -1);
+            if ($pos == (strlen($namespace) - 5)) {
+                $this->dtoNamespace = substr($namespace, 0, $pos).'DTO';
+            }
+            else {
+                $this->dtoNamespace = $namespace;
+            }
+        }
+
         $requiredElements = array('tableName', 'columns', 'schema');
         
         foreach ($requiredElements as $requiredElement) {

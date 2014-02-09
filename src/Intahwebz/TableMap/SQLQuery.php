@@ -389,10 +389,9 @@ endSQLFragment:
         }
 
         $return = array();
-        
-        if (count($this->outputClass) == 0) {
-            //TODO - this is hard coded
-            return castArraysToObjects('\Intahwebz\TableMap\Tests\DTO\MockNoteDTO', $contentArray);
+
+        if (count($this->outputClass) == 1) {
+            return castArraysToObjects($this->outputClass[0], $contentArray);
         }
 
         throw new \Exception("Not implemented yet.");
