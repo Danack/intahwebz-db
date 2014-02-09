@@ -3,27 +3,22 @@
 
 namespace Intahwebz\TableMap\Tests\Table;
 
-use Intahwebz\TableMap\SQLTableMap;
 
-
-class EmailTable extends SQLTableMap {
+class Person extends \Intahwebz\TableMap\SQLTableMap {
 
     function getTableDefinition() {
         $tableDefinition = array(
             'schema'        => 'mocks',
-            'tableName'     => 'email',
+            'tableName'     => 'person',
             'columns'       => array(
-                ['emailID', 'primary' => true, 'autoInc' => true],
-                ['address'],
+                ['personID', 'primary' => true, 'autoInc' => true],
+                ['name'],
             ),
-
             'relations' => [
-                \Intahwebz\TableMap\Tests\Table\emailuserprimaryEmailRelation::class
+                \Intahwebz\TableMap\Tests\Table\PersonPhoneNumberRelation::class
             ]
         );
 
         return $tableDefinition;
     }
 }
-
- 

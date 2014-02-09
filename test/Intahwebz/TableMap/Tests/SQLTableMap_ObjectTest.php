@@ -73,14 +73,13 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
             'title' => "My first Note",
             'text' => "Deep v 3 wolf moon bitters, ugh gluten-free disrupt pickled kale chips Banksy tattooed hella tofu Intelligentsia. Trust fund deep v PBR literally, 8-bit paleo DIY Odd Future cornhole polaroid try-hard hella butcher single-origin coffee sriracha. DIY mixtape irony messenger bag, tattooed banjo bicycle rights. Raw denim meggings pour-over bitters. Pour-over forage seitan lomo bicycle rights, flexitarian organic. Hoodie actually gluten-free VHS YOLO, polaroid Bushwick Pinterest Neutra Intelligentsia synth pour-over master cleanse fanny pack fingerstache. Organic keffiyeh trust fund, deep v ugh flexitarian narwhal freegan tofu.",
         ];
-        $insertID = $sqlQuery->insertIntoMappedTable($table, $data);
-        
+        $sqlQuery->insertIntoMappedTable($table, $data);
     }
 
     function testSingleObject() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
-        $sqlQuery->tableObject($table)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($table)->whereColumn('mockNoteID', 1);
 
         $objects = $sqlQuery->fetchObjects();
         
@@ -96,8 +95,8 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
         $sqlQuery = $this->sqlQueryFactory->create();
         $contentTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockContentSQLTable');
         $mockNoteTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
-        $sqlQuery->tableObject($contentTable);
-        $sqlQuery->tableObject($mockNoteTable)->whereColumn('mockNoteID', 1);
+        $sqlQuery->table($contentTable);
+        $sqlQuery->table($mockNoteTable)->whereColumn('mockNoteID', 1);
         $objects = $sqlQuery->fetchObjects();
         $this->assertCount(1, $objects);
         
@@ -105,6 +104,6 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
             'Intahwebz\\TableMap\\Tests\\DTO\\MockContentDTOXMockNoteDTO',
             $objects[0]
         );
-    }
+    }    
 }
  

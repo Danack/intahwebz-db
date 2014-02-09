@@ -3,8 +3,6 @@
 
 namespace Intahwebz\TableMap\Tests\Table;
 
-use Intahwebz\TableMap\SQLTableMap;
-
 use Intahwebz\TableMap\Relation;
 
 class emailuserprimaryEmailRelation extends Relation {

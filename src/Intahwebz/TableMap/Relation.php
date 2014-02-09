@@ -104,10 +104,12 @@ abstract class Relation {
     }
 
     /**
+     * If a table is the owning side of a relationship, and it has a 
+     * join table, return that table.
      * @param TableMap $tableMap
      * @return null|TableMap
      */
-    function getJoinTable(TableMap $tableMap) {
+    function getOwningJoinTable(TableMap $tableMap) {
         if ($this->tableName) {
             $owningSide = $this->owning;
             if ($tableMap instanceof $owningSide) { 

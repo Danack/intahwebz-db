@@ -42,14 +42,15 @@ class QueriedYAMLTable extends QueriedTable {
     }
 
     /**
-     * @param QueriedSQLTable $queriedTableMap
+     * @param \Intahwebz\TableMap\QueriedSQLTable|\Intahwebz\TableMap\QueriedTable $queriedTableMap
      * @param null $relationName
+     * @throws \Exception
      * @return Relation
      */
-    function findRelationTable(QueriedTable $queriedTableMap, $relationName = null) {
+    function findRelationTable(/** @noinspection PhpUnusedParameterInspection */
+        QueriedTable $queriedTableMap, /** @noinspection PhpUnusedParameterInspection */
+                               $relationName = null) {
         throw new \Exception("not implemented.");
     }
-
-
 }
  

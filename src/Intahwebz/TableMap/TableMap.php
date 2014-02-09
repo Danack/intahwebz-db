@@ -165,7 +165,7 @@ abstract class TableMap {
             }
         }
 
-        $columns = '['.var_export($this->columns).']';
+        $columns = '['.var_export($this->columns, true).']';
 
         throw new \Exception("Failed to find columnName [$columnNameToFind] in tableMap: ".$this->schema.".".$this->tableName." Columns are: ".$columns);
     }

@@ -67,46 +67,24 @@ abstract class AbstractQuery {
     /**
      * @param TableMap $tableMap
      * @param \Intahwebz\TableMap\QueriedTable $joinTableMap
-     * @return QueriedSQLTable
+     * @return QueriedSQLTable - The table to join the new table to.
      */
     function table(TableMap $tableMap, QueriedTable $joinTableMap = null) {
-
-        if ($joinTableMap != null) {
-            echo "not null here.";
-        }
-        
-        $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
-        $this->sqlFragments[] = $newFragment;
-
-        return $newFragment->queriedTableMap;
-    }
-
-    /**
-     * @param TableMap $tableMap
-     * @param QueriedTable $joinTableMap
-     * @return QueriedTable
-     */
-    function tableObject(TableMap $tableMap, QueriedTable $joinTableMap = null) {
         $this->addOutputClass($tableMap->getDTONamespace(), $tableMap->getDTOClassname());
         $newFragment = $this->makeTableFragment($tableMap, $joinTableMap);
         $this->sqlFragments[] = $newFragment;
 
         return $newFragment->queriedTableMap;
     }
-    
-    
+
     /**
      * 
      * @param TableMap $tableMap
      * @param QueriedTable $joinTableMap
-     * @return SQLTableFragment
+     * @return SQLTableFragment - The QueriedTable to join this one to, if not the previous
      */
     function makeTableFragment(TableMap $tableMap, QueriedTable $joinTableMap = null) {
-        $queriedTable = $this->aliasTableMap($tableMap);
-        if ($joinTableMap != null) {
-            echo "yeah not null";
-        }
-        
+        $queriedTable = $this->aliasTableMap($tableMap);        
         $newFragment = new SQLTableFragment($queriedTable, $joinTableMap);
 
         return $newFragment;

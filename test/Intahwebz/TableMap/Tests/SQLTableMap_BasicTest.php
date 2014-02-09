@@ -3,6 +3,8 @@
 use Intahwebz\TableMap\SQLQueryFactory;
 use Intahwebz\TableMap\TableMapWriter;
 
+
+
 class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
 
     /**
@@ -35,6 +37,9 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
             new Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockCommentSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockCommentTreePathSQLTable(),
+            
+            new Intahwebz\TableMap\Tests\Table\ContentTable(),
+            new Intahwebz\TableMap\Tests\Table\TagTable()
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */
@@ -305,6 +310,71 @@ class SQLTableMap_BasicTest extends \PHPUnit_Framework_TestCase {
         $contentDTO = new Intahwebz\TableMap\Tests\DTO\MockContentDTO();
         $insertID =$this->sqlQueryFactory->insertIntoMappedTable($table, $contentDTO);
         $this->assertGreaterThan(0, $insertID, "Insert failed?");
+    }
+    
+    
+    function testFoo() {
+
+        $contentTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\ContentTable');
+        $tagTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\TagTable');
+        
+        
+        $sqlQuery = $this->sqlQueryFactory->create();
+        
+        
+        $tagsForContentArray = [
+            ['dilbert', 'phb', 'funny'],
+            ['dilbert', 'morag', 'IT'],
+            ['dilbert', 'wally', 'sally', 'funny'],
+        ];
+        
+        
+        foreach ($tagsForContentArray as $tagsForContent) {
+
+            $contentDTO = new Intahwebz\TableMap\Tests\DTO\ContentDTO();
+
+            $contentID = $contentDTO->insertInto($sqlQuery, $contentTable);
+
+            foreach ($tagsForContent as $tag) {
+                $tagData = array(
+                    'contentID' => $contentID,
+                    'text'      => $tag,
+                );
+    
+                $tagID = $this->sqlQueryFactory->insertIntoMappedTable($tagTable, $tagData);
+            }
+        }
+
+        $tags = ['dilbert', 'funny'];
+        
+        $contentTableMap = $sqlQuery->table($contentTable);
+        $sqlQuery->table($tagTable)->whereColumnIn('text', $tags);
+        $suggestTableMap = $sqlQuery->table($tagTable, $contentTableMap);
+        $sqlQuery->select($suggestTableMap, "text");
+        $groupName = $sqlQuery->group($suggestTableMap, "text");
+
+        $sqlQuery->order(null, $groupName, 'desc');
+        $sqlQuery->limit(5 + count($tags));
+        $resultArray = $sqlQuery->fetch();
+        $suggestedTags = array();
+
+        foreach($resultArray as $result){
+            $suggestion = $result[$suggestTableMap->alias.".text"];
+            $count = $result[$suggestTableMap->alias.".count"];
+            $suggestedTags[$suggestion] = $count;
+        }
+
+        //We don't want to suggest tags that already exist for the content.
+        foreach($tags as $tag){
+            unset($suggestedTags[$tag]);
+        }
+
+        //TODO - add check that results are sane.
+//        'phb' => int(32)
+//          'wally' =>   int(24)
+//          'sally' =>   int(24)
+//          'morag' =>   int(16)
+//          'IT' =>   int(16)
     }
 }
  

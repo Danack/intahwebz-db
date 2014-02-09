@@ -16,6 +16,9 @@ use Intahwebz\TableMap\Fragment\SQLOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLRandOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLWhereFragment;
 
+
+$GLOBALS['objecting'] = false;
+
 class SQLQuery extends AbstractQuery {
 
     use \Intahwebz\SafeAccess;
@@ -235,6 +238,7 @@ endSQLFragment:
     /**
      * @param QueriedTable $queriedTableMap
      * @param QueriedTable $joinTableMap
+     * @throws \Exception
      * @return null
      */
     function findRelationTable(QueriedTable $queriedTableMap, QueriedTable $joinTableMap) {
@@ -376,10 +380,10 @@ endSQLFragment:
     }
 
     /**
+     * @param bool $fuckPHP
      * @return array|null
-     * @throws \Exception
      */
-    function fetchObjects() {
+    function fetchObjects($fuckPHP = false) {
 
         $contentArray = $this->fetch();
 
@@ -394,6 +398,10 @@ endSQLFragment:
 
         $compositeClassname = $this->generateCompositeObjectClassname();
         
+        if ($fuckPHP == true) {
+            var_dump($this->sqlFragments);
+        }
+        
         $compositeObjects = array();
         foreach($contentArray as $content) {
             $objects = array();
@@ -404,17 +412,15 @@ endSQLFragment:
         }
 
         return $compositeObjects;
-        
-//        var_dump($compositeObjects);
-//        exit(0);
-//
-//        throw new \Exception("Not implemented yet.");
     }
 
-//       getNamespace($namespaceClass)
-//       getClassName($namespaceClass);
+
 
     function generateCompositeObjectClassname() {
+
+        // Note - the two function names for parsing classnames are:
+        // getNamespace($namespaceClass)
+        // getClassName($namespaceClass);
         
         $namespace = getNamespace($this->outputClassnames[0]);
         
@@ -450,9 +456,7 @@ endSQLFragment:
         $this->addJoiningRelationTables();
 
         if ($doADelete == true) {
-
             $this->queryString = "";
-
             $schema = null;
 
             foreach($this->sqlFragments as $sqlFragment) {
@@ -856,23 +860,15 @@ endSQLFragment:
     }
 
     function insertIntoRelationTables($foreignKeys, TableMap $tableMap) {
-        //We failed to join automatically - lets try the proper relation stuff
-//        $relatedTable = $this->findRelationTable($sqlFragment->queriedTableMap, $joinTableMap);
 
         $relations = $tableMap->getRelations();
         
         foreach ($relations as $relation) {
-            $tableToInsert = $relation->getJoinTable($tableMap);
+            $tableToInsert = $relation->getOwningJoinTable($tableMap);
             if ($tableToInsert) {
                 $this->insertIntoMappedTable($tableToInsert, $foreignKeys);
             }
         }
-
-        /* foreach ($tableMap->getRelatedTables() as $relatedTable) {
-            //$relatedTableMap = $relatedTable->getTableMap();
-            $relationShipTable = $relatedTable->getRelationshipTable($tableMap);
-            $this->insertIntoMappedTable($relationShipTable, $foreignKeys);
-        } */
     }
     
     /**
@@ -1136,15 +1132,6 @@ endSQLFragment:
 
         $statementWrapper->execute();
         $statementWrapper->close();
-    }
-
-    function relate(SQLTableMap $bugTable, $relationName, $tableID, $foreignID) {
-        
-        $this->reset();
-        //$relationTable = $bugTable->getRelationTable($relationName);
-        
-        //$this->table($relationTable);
-        //$relationTable->
     }
 }
 
