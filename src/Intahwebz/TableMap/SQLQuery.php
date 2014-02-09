@@ -388,15 +388,50 @@ endSQLFragment:
             return null;
         }
 
-        $return = array();
-
-        if (count($this->outputClass) == 1) {
-            return castArraysToObjects($this->outputClass[0], $contentArray);
+        if (count($this->outputClassnames) == 1) {
+            return castArraysToObjects($this->outputClassnames[0], $contentArray);
         }
 
-        throw new \Exception("Not implemented yet.");
+        $compositeClassname = $this->generateCompositeObjectClassname();
+        
+        $compositeObjects = array();
+        foreach($contentArray as $content) {
+            $objects = array();
+            foreach ($this->outputClassnames as $classname) {
+                $objects[] = castToObject($classname, $content);
+            }
+            $compositeObjects[] = new $compositeClassname($objects[0], $objects[1]);
+        }
+
+        return $compositeObjects;
+        
+//        var_dump($compositeObjects);
+//        exit(0);
+//
+//        throw new \Exception("Not implemented yet.");
     }
 
+//       getNamespace($namespaceClass)
+//       getClassName($namespaceClass);
+
+    function generateCompositeObjectClassname() {
+        
+        $namespace = getNamespace($this->outputClassnames[0]);
+        
+        $classnames = $this->outputClassnames;
+        sort($classnames);
+
+        $classnames = array_map(
+            function ($namespacedClassname) {
+                return getClassName($namespacedClassname);
+            },
+            $classnames
+        );
+
+        return $namespace.'\\'.implode('X', $classnames);
+    }
+    
+    
     /**
      * @param bool $doACount
      * @param bool $doADelete

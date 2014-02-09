@@ -56,9 +56,6 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
         $this->provider = createProvider();
         $this->sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
 
-
-
-
         $sqlQuery = $this->sqlQueryFactory->create();
 
         $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockContentSQLTable');
@@ -71,7 +68,6 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
         
         $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
 
-
         $data = [
             'mockContentID' => 1,
             'title' => "My first Note",
@@ -80,24 +76,35 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
         $insertID = $sqlQuery->insertIntoMappedTable($table, $data);
         
     }
-    
-   
 
-    function testByObject() {
-        
-        
-        
+    function testSingleObject() {
         $sqlQuery = $this->sqlQueryFactory->create();
         $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
         $sqlQuery->tableObject($table)->whereColumn('mockNoteID', 1);
 
-        $sqlQuery->fetchObjects();
+        $objects = $sqlQuery->fetchObjects();
+        
+        $this->assertCount(1, $objects);
+        
+        $this->assertInstanceOf(
+            'Intahwebz\TableMap\Tests\DTO\MockNoteDTO', 
+            $objects[0]
+        );
+    }
 
-//        $contentArray = $sqlQuery->fetch();
-//        if (isset($contentArray[0]) == false) {
-//            return null;
-//        }
-        //return castToObject(\Intahwebz\TableMap\Tests\DTO\MockNoteDTO::class, $contentArray[0]);
+    function testSingleCompositedObject() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $contentTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockContentSQLTable');
+        $mockNoteTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockNoteSQLTable');
+        $sqlQuery->tableObject($contentTable);
+        $sqlQuery->tableObject($mockNoteTable)->whereColumn('mockNoteID', 1);
+        $objects = $sqlQuery->fetchObjects();
+        $this->assertCount(1, $objects);
+        
+        $this->assertInstanceOf(
+            'Intahwebz\\TableMap\\Tests\\DTO\\MockContentDTOXMockNoteDTO',
+            $objects[0]
+        );
     }
 }
  

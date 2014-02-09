@@ -49,7 +49,7 @@ abstract class AbstractQuery {
 
 
     /** @var array */
-    protected $outputClass = array();
+    protected $outputClassnames = array();
 
     /**
      * @param TableMap $tableMap
@@ -266,7 +266,7 @@ abstract class AbstractQuery {
      * @param $objectClassname
      */
     function addOutputClass($objectNamespace, $objectClassname) {
-        $this->outputClass[] = $objectNamespace.'\\'.$objectClassname;
+        $this->outputClassnames[] = $objectNamespace.'\\'.$objectClassname;
     }
     
 
