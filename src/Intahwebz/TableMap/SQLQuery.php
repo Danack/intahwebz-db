@@ -17,8 +17,6 @@ use Intahwebz\TableMap\Fragment\SQLRandOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLWhereFragment;
 
 
-$GLOBALS['objecting'] = false;
-
 class SQLQuery extends AbstractQuery {
 
     use \Intahwebz\SafeAccess;
@@ -264,102 +262,9 @@ endSQLFragment:
                 return new $tableName();
             }
         }
-        
-//        class Intahwebz\TableMap\Tests\Table\emailuserprimaryEmailRelation#2019 (4) {
-//    private $type =>_-_-_- ""  ""    
-//    string(22) "ONE_TO_ONE_DIRECTIONAL"
-//    private $owning =>
-//    string(40) "Intahwebz\TableMap\Tests\Table\UserTable"
-//    private $inverse =>
-//    string(41) "Intahwebz\TableMap\Tests\Table\EmailTable"
-//    private $tableName =>
-//    string(49) "Intahwebz\TableMap\Tests\Table\EmailUserJoinTable"
-//  }
-        
-        
-        throw new \Exception("Could not find relation in ".var_export($relations, true));
-        
-        
-//        if ($relation = $queriedTableMap->findRelationTable($joinTableMap)) {
-//            $joinTable = $relation->getInverseTable();
-//        }
-//        else {
-//            $relation = $joinTableMap->findRelationTable($queriedTableMap);
-//            if ($relation != null) {
-//                $joinTable = $relation->getInverseTable();
-//            }
-//        }
-        
-        //return $joinTable;
-    }
-    
-    
-//    function foo(QueriedTable $tableMap, QueriedTable $joinTableMap) {
-//        $relationTable = null;
-//        $joinColumn = $this->getJoinColumn($tableMap, $joinTableMap);
-//
-//        if ($joinColumn == null) {
-//
-//            $newFragment = null;
-//            $relatedTables = $tableMap->getTableMap()->getRelatedTables();
-//
-//            foreach($relatedTables as $relatedTable) {
-//                if ($relatedTable->getTableMap() == $joinTableMap->getTableMap()) {
-//                    $relationTable = $relatedTable->getRelationshipTable($tableMap->getTableMap());
-//                    $newFragment = $this->makeTableFragment($relationTable);
-//                    goto done;
-//                }
-//            }
-//
-//            $relatedTables = $joinTableMap->getTableMap()->getRelatedTables();
-//
-//            foreach($relatedTables as $relatedTable) {
-//                if ($relatedTable->getTableMap() == $tableMap->getTableMap()) {
-//                    $relationTable = $relatedTable->getRelationshipTable($joinTableMap->getTableMap());
-//                    $newFragment = $this->makeTableFragment($relationTable);
-//                    goto done;
-//                }
-//            }
-//done:
-//            if($newFragment == null) {
-//                throw new \Exception("Join will fail, as failed to find join fragment.");
-//            }
-//
-//            $modifiedSQLFragments[] = $newFragment;
-//        }
-//
-//}
-    
-    
-/*
-     
-    
-    //                        $relatedTables = $tableMap->getTableMap()->getRelatedTables();
-//
-//                        foreach($relatedTables as $relatedTable) {
-//                            if ($relatedTable->getTableMap() == $joinTableMap->getTableMap()) {
-//                                $relationTable = $relatedTable->getRelationshipTable($tableMap->getTableMap());
-//                                $newFragment = $this->makeTableFragment($relationTable);
-//                                goto done;
-//                            }
-//                        }
-//
-//                        $relatedTables = $joinTableMap->getTableMap()->getRelatedTables();
-//
-//                        foreach($relatedTables as $relatedTable) {
-//                            if ($relatedTable->getTableMap() == $tableMap->getTableMap()) {
-//                                $relationTable = $relatedTable->getRelationshipTable($joinTableMap->getTableMap());
-//                                $newFragment = $this->makeTableFragment($relationTable);
-//                                goto done;
-//                            }
-//                        }
-//done:
-//                        if($newFragment == null) {
-//                            throw new \Exception("Join will fail, as failed to find join fragment.");
-//                        }
-    
-    */
 
+        throw new \Exception("Could not find relation in ".var_export($relations, true));
+    }
 
     /**
      * @param $className
@@ -385,7 +290,13 @@ endSQLFragment:
      */
     function fetchObjects($fuckPHP = false) {
 
+        if ($fuckPHP == true) {
+            self::$showSQL = true;
+        }
+        
         $contentArray = $this->fetch();
+
+        self::$showSQL = false;
 
         //todo - this should just return an empty array
         if (count($contentArray) == false) {
@@ -400,6 +311,7 @@ endSQLFragment:
         
         if ($fuckPHP == true) {
             var_dump($this->sqlFragments);
+            exit(0);
         }
         
         $compositeObjects = array();
