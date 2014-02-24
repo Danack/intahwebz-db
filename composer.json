@@ -36,9 +36,9 @@
     },
 
     "require":{
-        "intahwebz/mb_extra": "dev-master",
+        "intahwebz/mb_extra": ">=1.0.0",
         "php": ">=5.4",
         "psr/log": "~1.0",
-        "intahwebz/core": "dev-master"
+        "intahwebz/core": ">=0.2.0"
     }
 }

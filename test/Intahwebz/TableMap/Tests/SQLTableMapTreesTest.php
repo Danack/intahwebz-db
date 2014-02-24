@@ -1,55 +1,12 @@
 <?php
 
+namespace Intahwebz\TableMap\Tests;
+
 use Intahwebz\TableMap\SQLQueryFactory;
 use Intahwebz\TableMap\TableMapWriter;
 
 
-function renderComments($comments1) {
-    
-    usort($comments1, function($a, $b) {
-        
-        if ($a['parent'] < $b['parent']) {
-            return -1;
-        }
-        if ($a['parent'] > $b['parent']) {
-            return 1;
-        }
-        
-        return ($a['mockCommentID'] < $b['mockCommentID']) ? -1 : 1;
-    });
-
-    $indents = [];
-    echo "\n";
-    
-    foreach ($comments1 as $comment) {
-
-        if (array_key_exists($comment['parent'], $indents) == true) {
-            $indent = $indents[$comment['parent']] + 1;
-        }
-        else {
-            $indent = 0;
-        }
-        
-        echo $comment['mockCommentID'].' '.
-        $comment['parent']." ";
-        for ($x=0; $x<$indent ; $x++) {
-            if ($x != 0 ){
-                echo "/";
-            }
-            echo "--";
-        }
-        
-        echo ' '.$comment['text']."\n";
-
-        $indents[$comment['mockCommentID']] = $indent;
-    }
-    var_dump($indents);
-    
-    exit(0);
-}
-
-
-class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
+class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @var \Auryn\Provider
@@ -63,8 +20,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
     
     /** @var  \Intahwebz\TableMap\SQLTableMap */
     private $treeTable;
-    
-    
+
     private  $treeDataSet = [
         //[1, null,  "Fran What’s the cause of this bug?"],
         [1, 1,  "Fran What’s the cause of this bug?"],
@@ -77,7 +33,6 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
     ];
 
     static function setUpBeforeClass() {
-
     }
 
     function setUp() {
@@ -92,11 +47,11 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $dbSync->processUpgradeForSchema('mocks', []);
 
         $tablesToUpgrade = [
-            new Intahwebz\TableMap\Tests\Table\MockCommentSQLTable(),
-            new Intahwebz\TableMap\Tests\Table\MockCommentTreePathSQLTable(),
+            new \Intahwebz\TableMap\Tests\Table\MockCommentTable(),
+            new \Intahwebz\TableMap\Tests\Table\MockCommentTreePathTable(),
         ];
 
-        /** @var $dbSync Intahwebz\DBSync\DBSync */
+        /** @var $dbSync \Intahwebz\DBSync\DBSync */
         $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
@@ -114,7 +69,7 @@ class SQLTableMap_TreesTest extends \PHPUnit_Framework_TestCase {
         $this->sqlQueryFactory = $this->provider->make('Intahwebz\TableMap\SQLQueryFactory');
 
         $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentSQLTable');
+        $table = $this->provider->make('Intahwebz\TableMap\Tests\Table\MockCommentTable');
 
         foreach ($this->treeDataSet as $dataSet) {
             $values = array();

@@ -6,7 +6,7 @@ namespace Intahwebz\TableMap\Tests\Table;
 use Intahwebz\TableMap\SQLTableMap;
 
 
-class MockCommentSQLTable extends SQLTableMap  {
+class MockCommentTable extends SQLTableMap  {
 
     function getTableDefinition() {
          $tableDefinition = array(
@@ -15,15 +15,13 @@ class MockCommentSQLTable extends SQLTableMap  {
             'columns' => array(
                 ['mockCommentID', 'primary' => true, 'autoInc' => true ],
                 ['text'],
-                ['parent', 'type' => 'i' ]
             ),
+             'relations' => [
+                 '\Intahwebz\TableMap\Tests\Table\commentRelation'
+             ]
         );
         return $tableDefinition;
     }
-
-//    function getClassName() {
-//        return "Content";
-//    }
 
     function isTreeLike() {
         return true;

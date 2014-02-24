@@ -6,7 +6,7 @@ namespace Intahwebz\TableMap\Tests\Table;
 use Intahwebz\TableMap\SQLTableMap;
 
 
-class MockCommentTreePathSQLTable extends SQLTableMap  {
+class MockCommentTreePathTable extends SQLTableMap  {
 
     function getTableDefinition() {
          $tableDefinition = array(
@@ -14,19 +14,13 @@ class MockCommentTreePathSQLTable extends SQLTableMap  {
             'tableName' => 'mockComment_TreePaths',
             'columns' => array(
                 ['mockCommentTreePathID', 'primary' => true, 'autoInc' => true ],
-                ['ancestor', 'type' => 'i'],
-                ['descendant', 'type' => 'i'],
+                ['ancestor', 'type' => 'i', 'foreignKey' => 'mockComment'],
+                ['descendant', 'type' => 'i', 'foreignKey' => 'mockComment'],
                 ['depth', 'type' => 'i'],
             ),
         );
         return $tableDefinition;
     }
-
-//    function getClassName() {
-//        //TODO - this should throw an exception, as this table dosesn't represent an
-//        //instantiable class.
-//        return parent::getClassName();
-//    }
 }
 
  

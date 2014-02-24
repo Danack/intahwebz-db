@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Intahwebz\TableMap\SQLQueryFactory;
 
 use Intahwebz\TableMap\Tests\DTO\EmailSQLTableDTO;

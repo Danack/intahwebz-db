@@ -290,10 +290,6 @@ endSQLFragment:
      * @return array|null
      */
     function fetchObjects($fuckPHP = false) {
-
-        if ($fuckPHP == true) {
-            self::$showSQL = true;
-        }
         
         $contentArray = $this->fetch();
 
@@ -759,16 +755,17 @@ endSQLFragment:
         $insertID = $statementWrapper->statement->insert_id;
         $statementWrapper->close();
 
-
-        if ($tableMap->isTreeLike() == true) {
-            $this->insertIntoTreePaths($tableMap, $insertID, $data['parent']);
-        }
-
         $foreignKeys[$tableMap->getPrimaryColumn()] = $insertID;
 
-        $this->insertIntoRelationTables($foreignKeys, $tableMap);
+        if ($tableMap->isTreeLike() == true) {
+            echo "Would have called insert $insertID, parent ". $data['parent']."\n";
+            //$this->insertIntoTreePaths($tableMap, $insertID, $data['parent']);
+            //var_dump($foreignKeys);
+            //exit(0);
+            return $insertID;
+        }
 
-     
+        $this->insertIntoRelationTables($foreignKeys, $tableMap);
 
         return $insertID;
     }
@@ -776,6 +773,8 @@ endSQLFragment:
     function insertIntoRelationTables($foreignKeys, TableMap $tableMap) {
 
         $relations = $tableMap->getRelations();
+
+
         
         foreach ($relations as $relation) {
             $tableToInsert = $relation->getOwningJoinTable($tableMap);
@@ -880,7 +879,7 @@ endSQLFragment:
         $statementWrapper->execute();
         $statementWrapper->close();
 
-        $queryString = '     Insert into '.$treePathTablename.' (ancestor, descendant, depth)
+        $queryString = 'Insert into '.$treePathTablename.' (ancestor, descendant, depth)
             select ancestor, ?, (depth + 1) from '.$treePathTablename.'
             where descendant = ? and 
             ancestor != ?;';
@@ -919,7 +918,6 @@ endSQLFragment:
         $blah = [];
         $blahblah = [];
 
-        //echo $this->queryString."<br/>";
         $statementWrapper->execute();
         $statementWrapper->statement->bind_result($blah['mockCommentID'], $blah['text'], $blah['parent']);
 
@@ -945,6 +943,7 @@ endSQLFragment:
      * @return array
      */
     function getDescendants(TableMap $tableMap, $nodeID, $maxRelativeDepth = null) {
+        //@todo - should this be on the table
         $this->reset();
 
         $tableName = $tableMap->schema.".".$tableMap->tableName;

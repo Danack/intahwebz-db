@@ -38,7 +38,7 @@ class SQLTableMap_CreationTest extends \PHPUnit_Framework_TestCase {
             new Intahwebz\TableMap\Tests\Table\MockHashSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockCommentSQLTable(),
-            new Intahwebz\TableMap\Tests\Table\MockCommentTreePathSQLTable(),
+            new Intahwebz\TableMap\Tests\Table\MockCommentTreePathTable(),
         ];
 
         /** @var $dbSync Intahwebz\DBSync\DBSync */

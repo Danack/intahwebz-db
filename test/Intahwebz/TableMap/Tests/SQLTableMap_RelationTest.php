@@ -1,5 +1,8 @@
 <?php
 
+namespace Intahwebz\TableMap\Tests;
+
+
 use Intahwebz\TableMap\SQLQueryFactory;
 use Intahwebz\TableMap\TableMapWriter;
 
@@ -28,12 +31,12 @@ class SQLTableMap_RelationTest extends \PHPUnit_Framework_TestCase {
         $dbSync->processUpgradeForSchema('mocks', []);
 
         $tablesToUpgrade = [
-            new Intahwebz\TableMap\Tests\Table\Person(),
-            new Intahwebz\TableMap\Tests\Table\PhoneNumber(),
-            new Intahwebz\TableMap\Tests\Table\PersonPhoneNumberJoinTable()
+            new \Intahwebz\TableMap\Tests\Table\Person(),
+            new \Intahwebz\TableMap\Tests\Table\PhoneNumber(),
+            new \Intahwebz\TableMap\Tests\Table\PersonPhoneNumberJoinTable()
         ];
 
-        /** @var $dbSync Intahwebz\DBSync\DBSync */
+        /** @var $dbSync \Intahwebz\DBSync\DBSync */
         $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
@@ -59,11 +62,11 @@ class SQLTableMap_RelationTest extends \PHPUnit_Framework_TestCase {
         $personTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\Person');
         $phoneNumbertable = $this->provider->make('Intahwebz\TableMap\Tests\Table\PhoneNumber');
 
-        $personDTO = new Intahwebz\TableMap\Tests\DTO\PersonDTO;
+        $personDTO = new \Intahwebz\TableMap\Tests\DTO\PersonDTO;
         $personDTO->setName('Danack');
         $personDTO->insertInto($sqlQuery, $personTable);
 
-        $mobileNumber = new Intahwebz\TableMap\Tests\DTO\PhoneNumberDTO;
+        $mobileNumber = new \Intahwebz\TableMap\Tests\DTO\PhoneNumberDTO;
         $mobileNumber->setPhoneNumber('07000111222');
 
         $sqlQuery->insertIntoMappedTable(
@@ -73,7 +76,7 @@ class SQLTableMap_RelationTest extends \PHPUnit_Framework_TestCase {
         );
 
 
-        $mobileNumber = new Intahwebz\TableMap\Tests\DTO\PhoneNumberDTO;
+        $mobileNumber = new \Intahwebz\TableMap\Tests\DTO\PhoneNumberDTO;
         $mobileNumber->setPhoneNumber('07000111333');
 
         $sqlQuery->insertIntoMappedTable(
@@ -84,28 +87,24 @@ class SQLTableMap_RelationTest extends \PHPUnit_Framework_TestCase {
     }
 
 
-//    function testOneToMany_fetch() {
-//        $sqlQuery = $this->sqlQueryFactory->create();
-//        $personTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\Person');
-//        $phoneNumberTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\PhoneNumber');
-//        $sqlQuery->tableObject($personTable)->whereColumn('personID', 1);
-//        $sqlQuery->tableObject($phoneNumberTable);
-//
-//        $GLOBALS['objecting'] = true;
-//        
-//        $contentArray = $sqlQuery->fetchObjects(true);
-//        
-////        var_dump($contentArray);
-////        exit(0);
-////        
-////        $objects = $sqlQuery->fetchObjects();
-////        $this->assertCount(1, $objects);
-////
-////        $this->assertInstanceOf(
-////            'Intahwebz\\TableMap\\Tests\\DTO\\PersonXPhoneNumber',
-////            $objects[0]
-////        );
-//    }
+    function testOneToMany_fetch() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $personTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\Person');
+        $phoneNumberTable = $this->provider->make('Intahwebz\TableMap\Tests\Table\PhoneNumber');
+        $sqlQuery->table($personTable)->whereColumn('personID', 1);
+        $sqlQuery->table($phoneNumberTable);
+
+        $result = $sqlQuery->fetchObjects(true);
+
+        $this->assertInstanceOf(
+            'Intahwebz\\TableMap\\Tests\\DTO\\PersonDTOXPhoneNumberDTO',
+            $result
+        );
+
+        /** @var $result \Intahwebz\TableMap\Tests\DTO\PersonDTOXPhoneNumberDTO */
+        $this->assertEquals($result->personDTO->name, 'Danack');
+        $this->assertCount(2, $result->phoneNumberDTOCollection);
+    }
 
 }
 
