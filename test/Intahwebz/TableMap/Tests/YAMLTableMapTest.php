@@ -21,7 +21,7 @@ class YAMLTableMapTest extends \PHPUnit_Framework_TestCase {
 
 
     static function setUpBeforeClass() {
-        $filename = realpath(__DIR__.'/MockYaml.yml');
+        $filename = realpath(__DIR__.'/data/MockYaml.yml');
         @unlink($filename);
     }
 

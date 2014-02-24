@@ -758,7 +758,7 @@ endSQLFragment:
         $foreignKeys[$tableMap->getPrimaryColumn()] = $insertID;
 
         if ($tableMap->isTreeLike() == true) {
-            echo "Would have called insert $insertID, parent ". $data['parent']."\n";
+            //echo "Would have called insert $insertID, parent ". $data['parent']."\n";
             //$this->insertIntoTreePaths($tableMap, $insertID, $data['parent']);
             //var_dump($foreignKeys);
             //exit(0);
@@ -774,8 +774,6 @@ endSQLFragment:
 
         $relations = $tableMap->getRelations();
 
-
-        
         foreach ($relations as $relation) {
             $tableToInsert = $relation->getOwningJoinTable($tableMap);
             if ($tableToInsert) {

@@ -32,7 +32,7 @@ class SQLTableMap_ObjectTest extends \PHPUnit_Framework_TestCase {
             new Intahwebz\TableMap\Tests\Table\MockNoteSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockHashSQLTable(),
             new Intahwebz\TableMap\Tests\Table\MockRandDataSQLTable(),
-            new Intahwebz\TableMap\Tests\Table\MockCommentSQLTable(),
+            new Intahwebz\TableMap\Tests\Table\MockCommentTable(),
             new Intahwebz\TableMap\Tests\Table\MockCommentTreePathTable(),
         ];
 
