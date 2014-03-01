@@ -3,6 +3,8 @@
     "description": "Library for using a database as a database - not ORM, just straight DB abstraction.",
     "keywords": ["intahwebz", "core", "library", "db", "database"],
 
+    "homepage": "https://github.com/Danack/intahwebz-db",
+
     "autoload": {
         "psr-0": {
             "Intahwebz\\DB": "src/",

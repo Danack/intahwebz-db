@@ -80,7 +80,8 @@ class TableMapWriter {
             $output .= $st."}\n\n";
         }
 
-        $lcTableName = mb_lcfirst($tableMap->getDTOClassName());
+        //$lcTableName = mb_lcfirst($tableMap->getDTOClassName());
+        $lcTableName = mb_lcfirst($tableMap->getTableName());
 
    
 
