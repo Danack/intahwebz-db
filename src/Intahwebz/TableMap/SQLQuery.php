@@ -327,7 +327,9 @@ endSQLFragment:
     }
 
 
-
+    /**
+     * @return string
+     */
     function generateCompositeObjectClassname() {
 
         // Note - the two function names for parsing classnames are:
@@ -553,8 +555,6 @@ endSQLFragment:
             if ($sqlFragment instanceof AncestorFragment) {
                 $this->addSQL( $whereString.$andString);
                 /** @var $sqlFragment AncestorFragment */
-//                $alias = $sqlFragment->queriedClosureTable->getAlias();
-//                $this->addSQL(" $alias.descendant = ?");
                 $whereString = '';
                 $andString = ' and';
                 $this->bindParams($sqlFragment);
@@ -922,118 +922,6 @@ endSQLFragment:
         $statementWrapper->close();
     }
 
-    
-    /**
-     * Get ancestors of comment #6
-     * @param TableMap $tableMap
-     * @param $nodeID
-     * @return array
-     */
-    function getAncestors(TableMap $tableMap, $nodeID) {
-        $this->reset();
-
-        $tableName = $tableMap->schema.".".$tableMap->tableName;
-
-        foreach($tableMap->columns as $columnDefinition){
-            $this->addColumnFromTableAlias($tableMap->tableName, $columnDefinition[0]);
-        }
-
-        $this->addSQL("from ".$tableName." ".$tableMap->tableName);
-        $this->addSQL("join ".$tableName."_TreePaths t");
-        $this->addSQL("on (".$tableMap->tableName.".".$tableMap->getPrimaryColumn()." = t.ancestor)");
-        $this->addSQL("where t.descendant = ?");
-
-        $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
-        $statementWrapper->bindParam('i', $nodeID);
-
-        $blah = [];
-        $blahblah = [];
-
-        $statementWrapper->execute();
-        $statementWrapper->statement->bind_result($blah['mockCommentID'], $blah['text'], $blah['parent']);
-
-        while ($statementWrapper->statement->fetch()) {
-            $really = array();
-            $really['mockCommentID'] = $blah['mockCommentID'];
-            $really['text'] = $blah['text'];
-            $really['parent'] = $blah['parent'];
-
-            //TODO fix this.
-            $blahblah[] = $really;
-        }
-
-        $statementWrapper->close();
-
-        return $blahblah;
-    }
-
-    /**
-     * @param TableMap $tableMap
-     * @param $nodeID
-     * @param null $maxRelativeDepth
-     * @return array
-     */
-    function getDescendants(TableMap $tableMap, $nodeID, $maxRelativeDepth = null) {
-        //@todo - should this be on the table
-        $this->reset();
-
-        $tableName = $tableMap->schema.".".$tableMap->tableName;
-
-        foreach($tableMap->columns as $columnDefinition){
-            $this->addColumnFromTableAlias($tableMap->tableName, $columnDefinition[0]);
-        }
-
-        $this->addSQL(", t.mockCommentTreePathID, t.depth ");
-        
-        $this->addSQL("from ".$tableName." ".$tableMap->tableName);
-        $this->addSQL("join ".$tableName."_TreePaths t");
-        $this->addSQL("on (".$tableMap->tableName.".".$tableMap->getPrimaryColumn()." = t.descendant)");
-        $this->addSQL("where t.ancestor = ?");
-
-        if ($maxRelativeDepth != null) {
-            $this->addSQL("and t.depth = ?");
-
-            $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
-            $statementWrapper->bindParam('ii', $nodeID, $maxRelativeDepth);
-        }
-        else {
-            $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
-            $statementWrapper->bindParam('i', $nodeID);
-        }
-
-        //TODO - this is embarrasing.
-        $blah = [];
-        $blahblah = [];
-
-        $statementWrapper->execute();
-        $statementWrapper->statement->bind_result(
-            //These are covered by foreach($tableMap->columns as $columnDefinition){
-            $blah['mockCommentID'], 
-            $blah['text'], 
-            $blah['parent'],
-            //These are from the tree map
-            $blah['treeID'],
-            $blah['depth']
-        );
-
-        while ($statementWrapper->statement->fetch()) {
-            $really = array();
-            $really['mockCommentID'] = $blah['mockCommentID'];
-            $really['text'] = $blah['text'];
-            $really['parent'] = $blah['parent'];
-            
-            $really['treeID'] = $blah['treeID'];
-            $really['depth'] = $blah['depth'];
-
-            //TODO fix this.
-            $blahblah[] = $really;
-        }
-
-        $statementWrapper->close();
-
-        return $blahblah;
-    }
-
     /**
      * Deletes a node.
      * @param TableMap $tableMap
@@ -1078,4 +966,3 @@ endSQLFragment:
         $statementWrapper->close();
     }
 }
-

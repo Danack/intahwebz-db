@@ -5,7 +5,7 @@ namespace Intahwebz\TableMap\Fragment;
 use Intahwebz\TableMap\QueriedTable;
 use Intahwebz\TableMap\SQLQuery;
 
-class AncestorFragment extends SQLFragment implements BindableParams{
+class AncestorFragment extends SQLFragment implements BindableParams {
 
     /**
      * @var QueriedTable
@@ -15,14 +15,14 @@ class AncestorFragment extends SQLFragment implements BindableParams{
     public $ancestorID;
     
     public $queriedClosureTable;
-    
 
-    function __construct(QueriedTable $queriedTable, QueriedTable $queriedClosureTable, $ancestorID) {
-        parent::__construct('table');
+    protected $isDescendant = false;
+
+    function __construct(QueriedTable $queriedTable, QueriedTable $queriedClosureTable, $ancestorID, $isDescendant = false) {
         $this->queriedTableMap = $queriedTable;
         $this->ancestorID = $ancestorID;
-
         $this->queriedClosureTable = $queriedClosureTable;
+        $this->isDescendant = $isDescendant;
     }
 
     function &getValue() {
@@ -56,14 +56,39 @@ class AncestorFragment extends SQLFragment implements BindableParams{
         $tableMap = $this->queriedTableMap->getTableMap();
         $alias = $this->queriedTableMap->getAlias();
         $closureAlias = $this->queriedClosureTable->getAlias();
-        $sqlQuery->addSQL("on (".$alias.".".$tableMap->getPrimaryColumn()." = $closureAlias.ancestor)");
+        if ($this->isDescendant == true) {
+            $sqlQuery->addSQL("on (".$alias.".".$tableMap->getPrimaryColumn()." = $closureAlias.descendant)");
+        }
+        else {
+            $sqlQuery->addSQL("on (".$alias.".".$tableMap->getPrimaryColumn()." = $closureAlias.ancestor)");
+        }
     }
+
+
+
+//if ($maxRelativeDepth != null) {
+//$this->addSQL("and t.depth = ?");
+//
+//$statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+//$statementWrapper->bindParam('ii', $nodeID, $maxRelativeDepth);
+//}
+//else {
+//    $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
+//    $statementWrapper->bindParam('i', $nodeID);
+//}
+
 
     /**
      * @param SQLQuery $sqlQuery
      */
     function whereBit(SQLQuery $sqlQuery) {
         $alias = $this->queriedClosureTable->getAlias();
-        $sqlQuery->addSQL(" $alias.descendant = ?");
+
+        if ($this->isDescendant == true) {
+            $sqlQuery->addSQL(" $alias.ancestor = ?");
+        }
+        else { 
+            $sqlQuery->addSQL(" $alias.descendant = ?");
+        }
     }    
 }

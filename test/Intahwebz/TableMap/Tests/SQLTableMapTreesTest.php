@@ -82,84 +82,79 @@ class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
 
 
     function testTreeSet() {
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->commentsTable;
 
-        try {
+        $queriedTable = $sqlQuery->table($table);
+        $sqlQuery->ancestor($queriedTable, 6);
+        $result = $sqlQuery->fetch();
+        $this->assertCount(3, $result);
 
-            $sqlQuery = $this->sqlQueryFactory->create();
-            $table = $this->commentsTable;
-
-            $queriedTable = $sqlQuery->table($table);
-            $sqlQuery->ancestor($queriedTable, 6);
-
-            //$sqlQuery->showSQLAndExit = true;
-            $result = $sqlQuery->fetch();
-            $this->assertCount(3, $result);
-        }
-        catch(\Exception $e) {
-            echo "bork bork bork: ".$e->getMessage();
-            echo $e->getTraceAsString();
-            exit(0);
-        }
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $queriedTable = $sqlQuery->table($table);
+        $sqlQuery->descendant($queriedTable, 2);
+        $result = $sqlQuery->fetch();
+        $this->assertCount(2, $result);
     }
     
 
-    function testTreeStBad() {
-        
-        try {
-
-        $sqlQuery = $this->sqlQueryFactory->create();
-        $table = $this->commentsTable;
-
-        $stuff = $sqlQuery->getAncestors($table, 6);        
-        $this->assertCount(3, $stuff);
-        
-        $ancestorIDs = array();
-        foreach ($stuff as $item) {
-            $ancestorIDs[] = $item['mockCommentID'];
-        }
-
-        $this->assertContains(6, $ancestorIDs);
-        $this->assertContains(4, $ancestorIDs);
-        $this->assertContains(1, $ancestorIDs);
-        
-        $stuff = $sqlQuery->getDescendants($table, 2);
-        
-        $descendentantIDs = array();
-        foreach ($stuff as $item) {
-            $descendentantIDs[] = $item['mockCommentID'];
-        }
-        $this->assertCount(2, $stuff);
-        $this->assertContains(2, $descendentantIDs);
-        $this->assertContains(3, $descendentantIDs);
-
-        $stuff2 = $sqlQuery->getDescendants($table, 2, 1);
-        $this->assertCount(1, $stuff2);
-
-        $beforeDelete = $sqlQuery->getDescendants($table, 2);
-        count($beforeDelete);
-        $sqlQuery->deleteDescendants($table, 2);
-        $afterDelete = $sqlQuery->getDescendants($table, 2);
-        $count = count($beforeDelete) - count($afterDelete);
-
-        $this->assertEquals(2, $count, "Failied to remove 2 + 3. ");
-            echo "fuck you buddy.";
-            exit(0);
-            
-        }
-        catch(\Exception $e) {
-            echo "bork bork bork: ".$e->getMessage();
-            echo $e->getTraceAsString();
-            exit(0);
-        }
-    }
+//    function tstTreeStBad() {
+//        
+//        $sqlQuery = $this->sqlQueryFactory->create();
+//        $table = $this->commentsTable;
+//
+//        $stuff = $sqlQuery->getAncestors($table, 6);        
+//        $this->assertCount(3, $stuff);
+//        
+//        $ancestorIDs = array();
+//        foreach ($stuff as $item) {
+//            $ancestorIDs[] = $item['mockCommentID'];
+//        }
+//
+//        $this->assertContains(6, $ancestorIDs);
+//        $this->assertContains(4, $ancestorIDs);
+//        $this->assertContains(1, $ancestorIDs);
+//        
+//        $stuff = $sqlQuery->getDescendants($table, 2);
+//        
+//        $descendentantIDs = array();
+//        foreach ($stuff as $item) {
+//            $descendentantIDs[] = $item['mockCommentID'];
+//        }
+//        $this->assertCount(2, $stuff);
+//        $this->assertContains(2, $descendentantIDs);
+//        $this->assertContains(3, $descendentantIDs);
+//
+//        $stuff2 = $sqlQuery->getDescendants($table, 2, 1);
+//        $this->assertCount(1, $stuff2);
+//
+//        $beforeDelete = $sqlQuery->getDescendants($table, 2);
+//        count($beforeDelete);
+//        $sqlQuery->deleteDescendants($table, 2);
+//        $afterDelete = $sqlQuery->getDescendants($table, 2);
+//        $count = count($beforeDelete) - count($afterDelete);
+//
+//        $this->assertEquals(2, $count, "Failied to remove 2 + 3. ");
+//    }
 
     function testTreeDelete() {
-        $sqlQuery = $this->sqlQueryFactory->create();
 
         $table = $this->commentsTable;
-        $comments1 = $sqlQuery->getDescendants($table, 1);
+        
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $queriedTable = $sqlQuery->table($table);
+        $sqlQuery->descendant($queriedTable, 1);
+        $comments1 = $sqlQuery->fetch();
+
+        $sqlQuery = $this->sqlQueryFactory->create();
         $sqlQuery->deleteNode($this->commentsTable, 4);
-        $comments2 = $sqlQuery->getDescendants($table, 1);
+
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $queriedTable = $sqlQuery->table($table);
+        $sqlQuery->descendant($queriedTable, 1);
+        $comments2 = $sqlQuery->fetch();
+
+
         $this->assertEquals(1, (count($comments1) - count($comments2)));
     }
 

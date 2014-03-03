@@ -83,26 +83,24 @@ abstract class AbstractQuery {
      * @param QueriedTable $joinTableMap
      * @param $ancestorID
      */
-    function ancestor(QueriedTable $joinTableMap, $ancestorID) {
-
-
+    function ancestor(QueriedTable $joinTableMap, $ancestorID, $isDescendant = false) {
         $relation = $joinTableMap->getTableMap()->getSelfClosureRelation();
-
         $closureTableName = $relation->getTableName();
-
         $closureTable = new $closureTableName();
-
         $queriedClosureTable = $this->aliasTableMap($closureTable);
-        
-        
-        $newFragment = new AncestorFragment($joinTableMap, $queriedClosureTable, $ancestorID);
-        
+        $newFragment = new AncestorFragment($joinTableMap, $queriedClosureTable, $ancestorID, $isDescendant);
         $this->sqlFragments[] = $newFragment;
 
-
-        
-        
+        return null;
     }
+
+    function descendant(QueriedTable $joinTableMap, $ancestorID) {
+        return $this->ancestor($joinTableMap, $ancestorID, true);
+    }
+
+
+
+    
     
     /**
      * 
