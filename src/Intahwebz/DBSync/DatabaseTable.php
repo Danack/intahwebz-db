@@ -28,13 +28,19 @@ class DatabaseTable{
         $this->tableName = $tableName;
     }
 
+    /**
+     * @param Connection $dbConnection
+     */
     function initFromDB(Connection $dbConnection) {
         $this->initFieldsForTableFromDB($dbConnection);
         $this->initFKConstraintsFromDB($dbConnection);
         $this->initIndicesFromDB($dbConnection);
     }
 
-     function parseColumns(\Intahwebz\TableMap\TableMap $tableMap) {
+    /**
+     * @param \Intahwebz\TableMap\TableMap $tableMap
+     */
+    function parseColumns(\Intahwebz\TableMap\TableMap $tableMap) {
         $columns = $tableMap->columns;
 
         foreach($columns as $column){
@@ -74,8 +80,9 @@ class DatabaseTable{
                     "CASCADE"
                 );
 
-                $columnName = $foreignKeyTableName."ID";
-                $constraint->addColumn(1, $columnName, $columnName);
+                $foreignColumnName = $foreignKeyTableName."ID";
+
+                $constraint->addColumn(1, $columnName, $foreignColumnName);
 
                 $this->addIndex($constraintName, $index);
                 $this->addConstraint($constraint);
@@ -106,19 +113,33 @@ class DatabaseTable{
     }
 
 
-    function	addField($alias, Field $field) {
+    /**
+     * @param $alias
+     * @param Field $field
+     */
+    function addField($alias, Field $field) {
         $this->fields[$alias] = $field;
     }
 
-    function	addIndex($alias, Index $index) {
+    /**
+     * @param $alias
+     * @param Index $index
+     */
+    function addIndex($alias, Index $index) {
         $this->indices[$alias] = $index;
     }
 
-    function	addConstraint(Constraint $constraint) {
+    /**
+     * @param Constraint $constraint
+     */
+    function addConstraint(Constraint $constraint) {
         $this->constraints[$constraint->name] = $constraint;
     }
 
-    function	getTableCreateOperations(){
+    /**
+     * @return array
+     */
+    function getTableCreateOperations(){
 
         $tableSchema = $this->getTableSchemaInfo();
 
@@ -174,14 +195,21 @@ class DatabaseTable{
         return null;
     }
 
-    function	getConstraintByName($constraintName){
+    /**
+     * @param $constraintName
+     * @return bool|Constraint
+     */
+    function getConstraintByName($constraintName){
         if(array_key_exists($constraintName, $this->constraints) == true){
             return $this->constraints[$constraintName];
         }
         return false;
     }
 
-    function	getTableSchemaInfo(){
+    /**
+     * @return array
+     */
+    function getTableSchemaInfo(){
         $tableSchema = array(
             'ENGINE' => 'InnoDB',
             'DEFAULT' => false,
@@ -192,7 +220,10 @@ class DatabaseTable{
         return	$tableSchema;
     }
 
-    function	getFieldCreationStatement(){
+    /**
+     * @return string
+     */
+    function getFieldCreationStatement(){
         $finalQuery = "";
         $commaString = "";
 
@@ -218,7 +249,10 @@ class DatabaseTable{
     }
 
 
-    function	getIndicesCreationStatement(){
+    /**
+     * @return string
+     */
+    function getIndicesCreationStatement(){
         $finalQuery = "";
         $commaString = ", ";
 
@@ -236,7 +270,10 @@ class DatabaseTable{
         return	$finalQuery;
     }
 
-    function	getConstraintsCreationStatement(){
+    /**
+     * @return string
+     */
+    function getConstraintsCreationStatement(){
         $finalQuery = "";
         $commaString = ", ";
 
@@ -249,13 +286,19 @@ class DatabaseTable{
         return	$finalQuery;
     }
 
-    function	getTableDeleteOperation(){
+    /**
+     * @return MySQLOperation
+     */
+    function getTableDeleteOperation(){
         $tableName = $this->schemaName.".".$this->tableName;
         $upgradeQuery = "drop TABLE ".$tableName.";";
         return new MySQLOperation($upgradeQuery, OPERATION_TYPE_REMOVE_TABLE);
     }
 
-    function	checkForForbiddenNames(){
+    /**
+     * 
+     */
+    function checkForForbiddenNames(){
         checkForbiddenNames($this->schemaName);
         checkForbiddenNames($this->tableName);
     }
@@ -279,7 +322,10 @@ class DatabaseTable{
         return	$tableChangeOperations;
     }
 
-    function	initFieldsForTableFromDB(Connection $connection){
+    /**
+     * @param Connection $connection
+     */
+    function initFieldsForTableFromDB(Connection $connection){
         $query = "SHOW FIELDS FROM ".$this->schemaName.".".$this->tableName;
 
         $statementWrapper = $connection->prepareAndExecute($query);
@@ -315,7 +361,10 @@ class DatabaseTable{
         $statementWrapper->close();
     }
 
-    function	initIndicesFromDB(Connection $connection){
+    /**
+     * @param Connection $connection
+     */
+    function initIndicesFromDB(Connection $connection){
         $query = "SHOW INDEX FROM ".$this->schemaName.".".$this->tableName;
 
         $statementWrapper = $connection->prepareAndExecute($query);
@@ -511,7 +560,11 @@ class DatabaseTable{
     }
 
 
-    function	getIndexChangeOperations(DatabaseTable $olderTable){
+    /**
+     * @param DatabaseTable $olderTable
+     * @return array
+     */
+    function getIndexChangeOperations(DatabaseTable $olderTable){
         $indexChangeOperations = array();
 
         foreach($this->indices as $newerIndexName => $newerIndexObject){
@@ -556,8 +609,11 @@ class DatabaseTable{
     }
 
 
-
-    function	getConstraintChangeOperations(DatabaseTable $olderTable){
+    /**
+     * @param DatabaseTable $olderTable
+     * @return array
+     */
+    function getConstraintChangeOperations(DatabaseTable $olderTable){
         $operations = array();
 
         foreach($this->constraints as $newerConstraintName => $newerConstraint){
@@ -585,6 +641,12 @@ class DatabaseTable{
     }
 
 
+    /**
+     * @param $constraintTableName
+     * @param $referencedTableName
+     * @param $constraintFields
+     * @return string
+     */
     static function getConstraintName(
         $constraintTableName,
         $referencedTableName,
@@ -605,6 +667,11 @@ class DatabaseTable{
         return $name;
     }
 
+    /**
+     * @param $column
+     * @return string
+     * @throws \Exception
+     */
     function getColumnType($column) {
 
         $mysqlNativeTypes = array(

@@ -3,7 +3,7 @@
 namespace Intahwebz\TableMap\Fragment;
 
 
-class SQLWhereFragment extends SQLFragment{
+class SQLWhereFragment extends SQLFragment implements BindableParams {
 
     var $whereCondition;
     var $value;
@@ -13,6 +13,14 @@ class SQLWhereFragment extends SQLFragment{
         $this->whereCondition = $whereCondition;
         $this->value = $value;
         $this->type = $type;
+    }
+
+    function &getValue() {
+        return $this->value;
+    }
+
+    function getType() {
+        return $this->type;
     }
 }
 

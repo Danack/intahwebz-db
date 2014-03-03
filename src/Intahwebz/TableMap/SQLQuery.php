@@ -5,6 +5,8 @@ namespace Intahwebz\TableMap;
 use Intahwebz\DB\Connection;
 use Intahwebz\DB\DBException;
 
+use Intahwebz\TableMap\Fragment\AncestorFragment;
+use Intahwebz\TableMap\Fragment\BindableParams;
 use Intahwebz\TableMap\Fragment\SQLTableFragment;
 use Intahwebz\TableMap\Fragment\SQLGroupFragment;
 use Intahwebz\Exception\UnsupportedOperationException;
@@ -15,6 +17,7 @@ use Intahwebz\TableMap\Fragment\SQLNullFragment;
 use Intahwebz\TableMap\Fragment\SQLOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLRandOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLWhereFragment;
+use Intahwebz\TableMap\Fragment\SQLFragment;
 
 
 class SQLQuery extends AbstractQuery {
@@ -30,8 +33,9 @@ class SQLQuery extends AbstractQuery {
 
     protected $queryString;
 
-    static $showSQL = false;
-    static $showSQLAndExit = false;
+    //Used for debugging only.
+    public  $showSQL = false;
+    public  $showSQLAndExit = false;
 
     function __construct(Connection $dbConnection) {
         $this->dbConnection = $dbConnection;
@@ -53,7 +57,6 @@ class SQLQuery extends AbstractQuery {
         
         return new QueriedSQLTable($tableMap, $tableAlias, $this);
     }
-
 
     /**
      * @param $tableMap QueriedTable
@@ -105,7 +108,7 @@ class SQLQuery extends AbstractQuery {
     /**
      * @param $string
      */
-    private function addSQL($string) {
+    function addSQL($string) {
         $this->queryString .= " ";
         $this->queryString .= $string;
         $this->queryString .= " ";
@@ -120,26 +123,28 @@ class SQLQuery extends AbstractQuery {
     }
 
     /**
-     * @param SQLWhereFragment $sqlFragment
+     * @param SQLFragment $sqlFragment
      * @throws \Exception
      */
-    private function bindParams(SQLWhereFragment $sqlFragment) {
-        if($sqlFragment->value !== NULL){
+    private function bindParams(BindableParams $sqlFragment) {
 
-            if(is_array($sqlFragment->value) == TRUE){
+        $value = &$sqlFragment->getValue();
+        $type = $sqlFragment->getType();
 
-                if(mb_strlen($sqlFragment->type) != count($sqlFragment->value)){
-                    throw new \Exception("Number of values ".count($sqlFragment->value)." does not match number of types passed in [".$sqlFragment->type."]");
+        if($value !== null) {
+            if(is_array($value) == true) {
+                if(mb_strlen($type) != count($value)){
+                    throw new \Exception("Number of values ".count($value)." does not match number of types passed in [".$type."]");
                 }
 
-                foreach($sqlFragment->value as &$value){
-                    $this->params[] = &$value;
+                foreach($value as &$valueElement){
+                    $this->params[] = &$valueElement;
                 }
-                $this->paramsTypes .= $sqlFragment->type;
+                $this->paramsTypes .= $type;
             }
             else{
-                $this->params[] = &$sqlFragment->value;
-                $this->paramsTypes .= $sqlFragment->type;
+                $this->params[] = &$value;
+                $this->paramsTypes .= $type;
             }
         }
     }
@@ -247,7 +252,6 @@ endSQLFragment:
         $relations = array_merge($relations, $joinTableMap->getTableMap()->getRelations());
 
         /** @var $relations Relation[] */
-        
         foreach($relations as $relation) {
             $owningType = $relation->getOwning();
             $inverseType = $relation->getInverse();
@@ -415,11 +419,16 @@ endSQLFragment:
 
             foreach($this->sqlFragments as $sqlFragment) {
                 if($autoAddColumns == TRUE){
-                    if($sqlFragment instanceof SQLTableFragment){
+                    if($sqlFragment instanceof SQLTableFragment) {
                         /** @var $sqlFragment SQLTableFragment */
                         if ($sqlFragment->getFetchColumns() == true) {
                             $this->addColumns($sqlFragment->queriedTableMap);
                         }
+                    }
+
+                    if($sqlFragment instanceof AncestorFragment) {
+                        /** @var $sqlFragment AncestorFragment */
+                        $this->addColumns($sqlFragment->queriedClosureTable);
                     }
                 }
                 if($sqlFragment instanceof SQLGroupFragment){
@@ -432,6 +441,9 @@ endSQLFragment:
         }
 
         $this->addSQL(" from ");
+        
+        
+//FROM bit
 
         $previousTableMap = NULL;
         $tableMap = null;
@@ -462,7 +474,7 @@ endSQLFragment:
                     $this->addSQL($tableMap->getSchema().".".$tableMap->getTableName().' as '.$tableMap->getAlias());
                 }
             }
-            else if($sqlFragment instanceof SQLNullFragment){
+            else if($sqlFragment instanceof SQLNullFragment) {
                 /** @var  $sqlFragment SQLNullFragment */
                 $tableMap = $sqlFragment->tableMap;
                 $nullTableMap = $sqlFragment->nullTableMap;
@@ -479,22 +491,27 @@ endSQLFragment:
 
                 $this->addSQL(" ) ");
             }
-
-            if ($sqlFragment instanceof SQLRandOrderFragment) {
-                //http://jan.kneschke.de/projects/mysql/order-by-rand/
-                /** @var  $sqlFragment SQLRandOrderFragment */
-                $tableMap = $sqlFragment->tableMap;
-                $tableMap2 = $sqlFragment->tableMap2;
-
-                $this->addSQL(" inner join  (SELECT (RAND() *
-                             (SELECT MAX(".$tableMap->getPrimaryColumn().")
-                        FROM ".$tableMap2->getSchema().".".$tableMap2->getTableName().")) as ".$tableMap->getPrimaryColumn()." )
-                    AS ".$tableMap2->getAlias()."_rand");
-
-                $this->addSQL( " where ".$tableMap->getAliasedPrimaryColumn()."  >= ".$tableMap2->getAlias()."_rand.".$tableMap2->getPrimaryColumn() );
-
-                
+            else if($sqlFragment instanceof AncestorFragment) {
+                $sqlFragment->joinBit($this);
+                $sqlFragment->onBit($this);
             }
+
+            $sqlFragment->randBit($this, $tableMap);
+            
+//            if ($sqlFragment instanceof SQLRandOrderFragment) {
+//                //http://jan.kneschke.de/projects/mysql/order-by-rand/
+//                /** @var  $sqlFragment SQLRandOrderFragment */
+//                $tableMap = $sqlFragment->tableMap;
+//                $tableMap2 = $sqlFragment->tableMap2;
+//
+//                $this->addSQL(" inner join  (SELECT (RAND() *
+//                             (SELECT MAX(".$tableMap->getPrimaryColumn().")
+//                        FROM ".$tableMap2->getSchema().".".$tableMap2->getTableName().")) as ".$tableMap->getPrimaryColumn()." )
+//                    AS ".$tableMap2->getAlias()."_rand");
+//
+//                $this->addSQL( " where ".$tableMap->getAliasedPrimaryColumn()."  >= ".$tableMap2->getAlias()."_rand.".$tableMap2->getPrimaryColumn() );
+//
+//            }
 
             $previousTableMap = $tableMap;
         }
@@ -531,6 +548,17 @@ endSQLFragment:
                 $whereString = '';
                 $andString = ' and';
                 $this->bindParams($sqlFragment);
+            }
+
+            if ($sqlFragment instanceof AncestorFragment) {
+                $this->addSQL( $whereString.$andString);
+                /** @var $sqlFragment AncestorFragment */
+//                $alias = $sqlFragment->queriedClosureTable->getAlias();
+//                $this->addSQL(" $alias.descendant = ?");
+                $whereString = '';
+                $andString = ' and';
+                $this->bindParams($sqlFragment);
+                $sqlFragment->whereBit($this);
             }
         }
 
@@ -583,16 +611,18 @@ endSQLFragment:
 
         $this->queryString .= ';';
 
-        if(self::$showSQL == TRUE){
-            echo "Query is [<br/>";
-            echo str_replace("\n", "<br/>\n", $this->queryString);
-            echo "<br/>]\r\n";
+        if($this->showSQL == TRUE){
+            echo "Query is [";
+            //echo str_replace("\n", "<br/>\n", $this->queryString);
+            echo $this->queryString;
+            echo "]\r\n";
         }
 
-        if(self::$showSQLAndExit == true){
-            echo "Query is [<br/>";
-            echo str_replace("\n", "<br/>\n", $this->queryString);
-            echo "<br/>]\r\n";
+        if($this->showSQLAndExit == true){
+            echo "Query is [";
+            //echo str_replace("\n", "<br/>\n", $this->queryString);
+            echo $this->queryString;
+            echo "]\r\n";
 
             var_dump($this->paramsTypes);
             var_dump($this->params);
@@ -601,7 +631,7 @@ endSQLFragment:
 
         $statementWrapper = $this->dbConnection->prepareStatement($this->queryString);
         
-        if(count($this->params) > 0){
+        if(count($this->params) > 0) {
             $bindParams = array();
             $bindParams[] = $this->paramsTypes;
             $bindParams = array_merge($bindParams, $this->params);
@@ -757,12 +787,10 @@ endSQLFragment:
 
         $foreignKeys[$tableMap->getPrimaryColumn()] = $insertID;
 
-        if ($tableMap->isTreeLike() == true) {
-            //echo "Would have called insert $insertID, parent ". $data['parent']."\n";
-            //$this->insertIntoTreePaths($tableMap, $insertID, $data['parent']);
-            //var_dump($foreignKeys);
-            //exit(0);
-            return $insertID;
+        if ($closureRelation = $tableMap->getSelfClosureRelation()) {
+            $closureTableMapName = $closureRelation->getTableName();
+            $closureTableMap = new $closureTableMapName();
+            $this->insertIntoTreePaths($closureTableMap, $insertID, $data['parent']);
         }
 
         $this->insertIntoRelationTables($foreignKeys, $tableMap);
@@ -775,9 +803,15 @@ endSQLFragment:
         $relations = $tableMap->getRelations();
 
         foreach ($relations as $relation) {
-            $tableToInsert = $relation->getOwningJoinTable($tableMap);
-            if ($tableToInsert) {
-                $this->insertIntoMappedTable($tableToInsert, $foreignKeys);
+            
+            if ($relation->getType() == Relation::SELF_CLOSURE) {
+                //already handled outside of here, which is bad, but hey.
+            }
+            else{
+                $tableToInsert = $relation->getOwningJoinTable($tableMap);
+                if ($tableToInsert) {
+                    $this->insertIntoMappedTable($tableToInsert, $foreignKeys);
+                }
             }
         }
     }
@@ -857,15 +891,14 @@ endSQLFragment:
     }
 
     /**
-     * @param TableMap $tableMap
+     * @param TableMap $closureTableMap
      * @param $insertID
      * @param $parentID
      */
-    function insertIntoTreePaths(TableMap $tableMap, $insertID, $parentID) {
+    function insertIntoTreePaths(TableMap $closureTableMap, $insertID, $parentID) {
 
-        $treePathTablename = $tableMap->schema.'.'.$tableMap->tableName.'_TreePaths';
+        $treePathTablename = $closureTableMap->schema.'.'.$closureTableMap->tableName;
 
-        //TODO - where the fuck does depth come from.
         $queryString = ' insert into '.$treePathTablename.' (ancestor, descendant, depth)
                 values (?, ?, 0)';
 

@@ -4,10 +4,11 @@
 namespace Intahwebz\TableMap\Fragment;
 
 use Intahwebz\TableMap\QueriedTable;
+use Intahwebz\TableMap\SQLQuery;
 
 //http://jan.kneschke.de/projects/mysql/order-by-rand/
 
-class SQLRandOrderFragment extends SQLFragment{
+class SQLRandOrderFragment extends SQLFragment {
 
     var $tableMap;
 
@@ -19,6 +20,23 @@ class SQLRandOrderFragment extends SQLFragment{
         $this->tableMap = $tableMap;
         $this->tableMap2 = $tableMap2;
         $this->orderValue = $orderValue;
+    }
+
+
+    function randBit(SQLQuery $sqlQuery, &$tableMap){
+
+        //http://jan.kneschke.de/projects/mysql/order-by-rand/
+        /** @var  $sqlFragment SQLRandOrderFragment */
+        $tableMap = $this->tableMap;
+        $tableMap2 = $this->tableMap2;
+
+        $sqlQuery->addSQL(" inner join  (SELECT (RAND() *
+                             (SELECT MAX(".$tableMap->getPrimaryColumn().")
+                        FROM ".$tableMap2->getSchema().".".$tableMap2->getTableName().")) as ".$tableMap->getPrimaryColumn()." )
+                    AS ".$tableMap2->getAlias()."_rand");
+
+        $sqlQuery->addSQL( " where ".$tableMap->getAliasedPrimaryColumn()."  >= ".$tableMap2->getAlias()."_rand.".$tableMap2->getPrimaryColumn() );
+
     }
 }
 

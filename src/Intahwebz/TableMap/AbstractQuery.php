@@ -8,6 +8,7 @@ use Intahwebz\TableMap\Fragment\SQLWhereFragment;
 use Intahwebz\TableMap\Fragment\SQLSelectColumnFragment;
 use Intahwebz\TableMap\Fragment\SQLTableFragment;
 
+use Intahwebz\TableMap\Fragment\AncestorFragment;
 use Intahwebz\TableMap\Fragment\SQLGroupFragment;
 use Intahwebz\TableMap\Fragment\SQLOrderFragment;
 use Intahwebz\TableMap\Fragment\SQLNullFragment;
@@ -77,6 +78,32 @@ abstract class AbstractQuery {
         return $newFragment->queriedTableMap;
     }
 
+
+    /**
+     * @param QueriedTable $joinTableMap
+     * @param $ancestorID
+     */
+    function ancestor(QueriedTable $joinTableMap, $ancestorID) {
+
+
+        $relation = $joinTableMap->getTableMap()->getSelfClosureRelation();
+
+        $closureTableName = $relation->getTableName();
+
+        $closureTable = new $closureTableName();
+
+        $queriedClosureTable = $this->aliasTableMap($closureTable);
+        
+        
+        $newFragment = new AncestorFragment($joinTableMap, $queriedClosureTable, $ancestorID);
+        
+        $this->sqlFragments[] = $newFragment;
+
+
+        
+        
+    }
+    
     /**
      * 
      * @param TableMap $tableMap

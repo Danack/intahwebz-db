@@ -11,5 +11,18 @@ abstract class SQLTableMap extends TableMap {
     }
 
     abstract function getTableDefinition();
+
+    /**
+     * @return Relation|null
+     */
+    function getSelfClosureRelation() {
+        foreach ($this->relations as $relation) {
+            if ($relation->getType() == Relation::SELF_CLOSURE) {
+                return $relation;
+            }
+        }
+        
+        return null;
+    }
 }
 

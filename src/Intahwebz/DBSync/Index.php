@@ -27,10 +27,18 @@ class Index {
         checkForbiddenNames($this->keyName, array('PRIMARY'));
     }
 
+    /**
+     * @param $isConstraint
+     */
     function setConstraint($isConstraint) {
         $this->isConstraint = $isConstraint;
     }
 
+    /**
+     * @param $columnName
+     * @param $sequenceInIndex
+     * @throws \Exception
+     */
     function addColumn($columnName, $sequenceInIndex) {
         if (isset($this->columns[$sequenceInIndex]) == true) {
             throw new \Exception("Error, index already has column for sequenceInIndex $sequenceInIndex. " . $this->keyName);
@@ -39,10 +47,16 @@ class Index {
         $this->columns[$sequenceInIndex] = $columnName;
     }
 
+    /**
+     * @return string
+     */
     function getCreationString() {
         return $this->getRawCreationString();
     }
 
+    /**
+     * @return string
+     */
     function getRawCreationString() {
         $finalQuery = "";
 
@@ -73,7 +87,11 @@ class Index {
         return $finalQuery;
     }
 
-    function    getIndexCreateOperation($targetTable) {
+    /**
+     * @param $targetTable
+     * @return MySQLOperation
+     */
+    function getIndexCreateOperation($targetTable) {
         $fullTableName = $targetTable->schemaName . "." . $targetTable->tableName;
         $rawCreationString = $this->getRawCreationString();
         $upgradeQuery = " ALTER TABLE $fullTableName ADD $rawCreationString; ";
@@ -82,7 +100,11 @@ class Index {
         return new MySQLOperation($upgradeQuery, OPERATION_TYPE_CREATE_INDEX, $comment);
     }
 
-    function    getIndexChangeOperation($targetTable) {
+    /**
+     * @param $targetTable
+     * @return array
+     */
+    function getIndexChangeOperation($targetTable) {
         $targetRawCreationString = $this->getRawCreationString();
         $removeQuery = "ALTER TABLE ".$targetTable->schemaName.".".$targetTable->tableName." DROP INDEX " . $this->keyName . ";";
         $reAddQuery = "ADD INDEX $targetRawCreationString ;";
@@ -97,6 +119,10 @@ class Index {
         return $result;
     }
 
+    /**
+     * @param $sourceTable
+     * @return MySQLOperation
+     */
     function getIndexDeleteOperation($sourceTable) {
         $fullTableName = $sourceTable->schemaName . "." . $sourceTable->tableName;
 
@@ -107,6 +133,10 @@ class Index {
         return new MySQLOperation($upgradeQuery, OPERATION_TYPE_REMOVE_INDEX, $comment);
     }
 
+    /**
+     * @param $indexColumns
+     * @return Index
+     */
     public static function createFromDefintion($indexColumns) {
         $indexName = "index";
 

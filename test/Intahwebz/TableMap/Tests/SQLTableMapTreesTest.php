@@ -19,7 +19,7 @@ class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
     private $sqlQueryFactory;
     
     /** @var  \Intahwebz\TableMap\SQLTableMap */
-    private $treeTable;
+    private $commentsTable;
 
     private  $treeDataSet = [
         //[1, null,  "Fran What’s the cause of this bug?"],
@@ -55,7 +55,6 @@ class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
         $dbSync = $provider->make('Intahwebz\DBSync\DBSync');
         $dbSync->processUpgradeForSchema('mocks', $tablesToUpgrade);
 
-
         $tableMapWriter = new TableMapWriter();
         foreach($tablesToUpgrade as $knownTable){
             /** @var $knownTable \Intahwebz\TableMap\TableMap */
@@ -78,13 +77,38 @@ class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
             $sqlQuery->insertIntoMappedTable($table, $values);
         }
 
-        $this->treeTable = $table;
+        $this->commentsTable = $table;
     }
 
-    function testTreeSet() {
-        $sqlQuery = $this->sqlQueryFactory->create();
 
-        $table = $this->treeTable;
+    function testTreeSet() {
+
+        try {
+
+            $sqlQuery = $this->sqlQueryFactory->create();
+            $table = $this->commentsTable;
+
+            $queriedTable = $sqlQuery->table($table);
+            $sqlQuery->ancestor($queriedTable, 6);
+
+            //$sqlQuery->showSQLAndExit = true;
+            $result = $sqlQuery->fetch();
+            $this->assertCount(3, $result);
+        }
+        catch(\Exception $e) {
+            echo "bork bork bork: ".$e->getMessage();
+            echo $e->getTraceAsString();
+            exit(0);
+        }
+    }
+    
+
+    function testTreeStBad() {
+        
+        try {
+
+        $sqlQuery = $this->sqlQueryFactory->create();
+        $table = $this->commentsTable;
 
         $stuff = $sqlQuery->getAncestors($table, 6);        
         $this->assertCount(3, $stuff);
@@ -118,15 +142,23 @@ class SQLTableMapTreesTest extends \PHPUnit_Framework_TestCase {
         $count = count($beforeDelete) - count($afterDelete);
 
         $this->assertEquals(2, $count, "Failied to remove 2 + 3. ");
+            echo "fuck you buddy.";
+            exit(0);
+            
+        }
+        catch(\Exception $e) {
+            echo "bork bork bork: ".$e->getMessage();
+            echo $e->getTraceAsString();
+            exit(0);
+        }
     }
-
 
     function testTreeDelete() {
         $sqlQuery = $this->sqlQueryFactory->create();
 
-        $table = $this->treeTable;
+        $table = $this->commentsTable;
         $comments1 = $sqlQuery->getDescendants($table, 1);
-        $sqlQuery->deleteNode($this->treeTable, 4);
+        $sqlQuery->deleteNode($this->commentsTable, 4);
         $comments2 = $sqlQuery->getDescendants($table, 1);
         $this->assertEquals(1, (count($comments1) - count($comments2)));
     }

@@ -49,24 +49,6 @@ class DBSyncTest extends \PHPUnit_Framework_TestCase {
         $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
     }
 
-
-//
-//    public function testBasic() {
-//
-//        /** @var $dbSync \Intahwebz\DBSync\DBSync */
-//        $dbSync = $this->provider->make(\Intahwebz\DBSync\DBSync::class);
-//
-//        $tablesToUprade = [
-//            new \Intahwebz\DBSync\Tests\MockContentSQLTable(),
-//            new \Intahwebz\DBSync\Tests\MockNoteSQLTable(),
-//            new \Intahwebz\DBSync\Tests\MockHashSQLTable(),
-//        ];
-//
-//        $dbSync->processUpgradeForSchema('mocks', $tablesToUprade);
-//    }
-
-
-
     public function testFields() {
         /** @var $dbSync \Intahwebz\DBSync\DBSync */
         $dbSync = $this->provider->make('Intahwebz\DBSync\DBSync');

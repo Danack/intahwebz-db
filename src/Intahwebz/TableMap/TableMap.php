@@ -112,7 +112,10 @@ abstract class TableMap {
             $this->initRelations($tableDefinition['relations']);
         }
     }
-    
+
+    /**
+     * @param $relations
+     */
     function initRelations($relations) {
         foreach ($relations as $relation) {
             $this->relations[] = new $relation();
@@ -184,5 +187,13 @@ abstract class TableMap {
         }
 
         return false;
+    }
+
+
+    /**
+     * @return null|Relation
+     */
+    function getSelfClosureRelation() {
+        return null;
     }
 }

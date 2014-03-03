@@ -15,6 +15,7 @@ class Field {
     var $extra;
 
     function __construct($fieldName, $type, $nullAllowed, $isDefault, $extra) {
+
         $this->fieldName = $fieldName;
 
         checkForbiddenNames($this->fieldName);
